@@ -1,0 +1,31 @@
+---
+import Button from "../components/Button.astro";
+import Section from "../components/Section.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="LeaderBarber">
+  <section class="text-black py-64 md:py-24 lg:py-60 xl:py-64">
+    <div class="flex flex-col items-center space-y-2 text-center text-balance">
+      <h1
+        class="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-6xl/none"
+      >
+        ¡Encuentra tu éstilo de pelo!
+      </h1>
+      <p
+        class="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400"
+      >
+        Reserva citas con los mejores barberos de LeaderBarber. Consulta sus estilos,
+        precios y tiempos de espera.
+      </p>
+
+      <div class="grid grid-cols-1 justify-items-center">
+        <Button title="Test Estilos" redirect="#Estilos" />
+      </div>
+    </div>
+  </section>
+
+  <Section id="Estilos">
+    <h1 class="text-black">Hika</h1>
+  </Section>
+</Layout>
