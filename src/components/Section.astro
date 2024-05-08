@@ -6,15 +6,6 @@ interface Props {
 const { id, bgColor } = Astro.props;
 ---
 
-<section
-  class:list={[
-    "w-full py-72 md:py-62",
-    {
-      "bg-gray-100": !bgColor,
-      bgColor: bgColor,
-    },
-  ]}
-  id={id}
->
+<section class="bg-gray-900 py-24 md:py-32" id={id}>
   <slot />
 </section>
