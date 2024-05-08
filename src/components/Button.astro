@@ -2,13 +2,19 @@
 interface Props {
   title: string;
   redirect?: string;
+  styles: string;
 }
 
-const { title, redirect } = Astro.props;
+const { title, redirect, styles } = Astro.props;
 ---
 
 <button
-  class="rounded-md bg-blue-700 w-full py-2 text-sm font-medium text-gray-50 hover:bg-blue-600"
+  class:list={[
+    "rounded-md py-2 font-medium w-full",
+    {
+      [styles]: styles,
+    },
+  ]}
 >
   <a href={redirect}>{title}</a>
 </button>
