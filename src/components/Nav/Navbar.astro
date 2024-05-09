@@ -1,0 +1,28 @@
+---
+import Nav from "./Nav.astro";
+---
+
+<nav
+  class="text-white flex justify-center items-center space-x-4 md:justify-end"
+>
+  <Nav
+    title="Estilos"
+    href="#Estilos"
+    styles="hover:underline  underline-offset-8"
+  />
+  <Nav
+    title="Barberos"
+    href="#Barberos"
+    styles="hover:underline  underline-offset-8"
+  />
+  <Nav
+    title="Iniciar Sesión"
+    href=""
+    styles="hover:underline  underline-offset-8"
+  />
+  <Nav
+    title="Registrate!"
+    href="/auth/Register/"
+    styles="transition duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black"
+  />
+</nav>

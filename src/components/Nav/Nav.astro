@@ -1,0 +1,15 @@
+---
+interface Props {
+  title: string;
+  href: string;
+  styles?: string;
+}
+
+const { title, href, styles } = Astro.props;
+---
+
+<a href={href}>
+  <p class:list={["text-md font-medium ", styles]}>
+    {title}
+  </p>
+</a>
