@@ -1,32 +1,7 @@
 ---
-
+import Navbar from "./Nav/Navbar.astro";
 ---
 
-<header class="mx-auto min-w-xl py-8 px-4 md:px-6 bg-gray-900 ">
-  <nav
-    class="text-white flex justify-center items-center space-x-4 md:justify-end "
-  >
-    <a href="#Estilos"
-      ><p class="text-md font-medium hover:underline underline-offset-8">
-        Estilos
-      </p></a
-    >
-    <a href="text-black"
-      ><p class="text-md font-medium hover:underline underline-offset-8">
-        Barberos
-      </p></a
-    >
-    <a href="text-black"
-      ><p class="text-md font-medium hover:underline underline-offset-8">
-        Iniciar Sesión
-      </p></a
-    >
-    <a
-      href="/auth/Register/"
-      class="inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black"
-      ><p class="text-md font-medium">
-        Registrarte!
-      </p></a
-    >
-  </nav>
+<header class="mx-auto min-w-xl py-8 px-4 md:px-6 bg-gray-900">
+  <Navbar /> 
 </header>

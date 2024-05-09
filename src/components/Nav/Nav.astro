@@ -9,12 +9,7 @@ const { title, href, styles } = Astro.props;
 ---
 
 <a href={href}>
-  <p
-    class:list={[
-      "text-md font-medium hover:underline underline-offset-8",
-      styles,
-    ]}
-  >
+  <p class:list={["text-md font-medium ", styles]}>
     {title}
   </p>
 </a>
