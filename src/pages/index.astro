@@ -75,7 +75,10 @@ const haircutServices: HaircutService[] = [
   title="LeaderBarber - Encuentra tu estilo de pelo"
   description="Reserva citas con los mejores barberos de LeaderBarber. Consulta sus estilos, precios y tiempos de espera."
 >
-  <section class="text-white bg-gray-900 py-64 md:py-24 lg:py-56 xl:py-60">
+  <Section
+    id="hero"
+    styles="text-white bg-gray-900 py-64 md:py-24 lg:py-56 xl:py-60"
+  >
     <div class="flex flex-col items-center space-y-2 text-center text-balance">
       <h1
         class="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-6xl/none"
@@ -97,16 +100,17 @@ const haircutServices: HaircutService[] = [
         </button>
       </div>
     </div>
-  </section>
+  </Section>
 
   <Section id="Estilos">
     <div class="container mx-auto">
+      <h1 class="text-black">Aqui va un texto</h1>
       <div
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
       >
         {
           haircutServices.map((card, index) => (
-            <div class="bg-[#101829] rounded-lg shadow-md overflow-hidden h-full m-5 md:m-5 lg:m-0">
+            <div class="bg-[#101829] rounded-lg shadow-md overflow-hidden h-full m-5 ">
               <Image
                 src={card.image}
                 alt={card.title}
@@ -115,12 +119,8 @@ const haircutServices: HaircutService[] = [
               <div class="py-6 px-14 ">
                 <h3 class="text-xl font-bold text-white">{card.title}</h3>
                 <div class="flex items-center mt-2">
-                  <span class="text-white font-bold text-sm">
-                    {card.price} 
-                  </span>
-                  <span class="text-white text-sm mx-2">
-                    |
-                  </span>
+                  <span class="text-white font-bold text-sm">{card.price}</span>
+                  <span class="text-white text-sm mx-2">|</span>
                   <span class="text-white text-sm capitalize">
                     {card.duration}
                   </span>

@@ -1,0 +1,20 @@
+---
+interface Props {
+  title: string;
+  href: string;
+  styles?: string;
+}
+
+const { title, href, styles } = Astro.props;
+---
+
+<a href={href}>
+  <p
+    class:list={[
+      "text-md font-medium hover:underline underline-offset-8",
+      styles,
+    ]}
+  >
+    {title}
+  </p>
+</a>
