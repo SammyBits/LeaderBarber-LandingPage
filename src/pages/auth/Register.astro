@@ -4,6 +4,81 @@ import AuthLayout from "../../layouts/AuthLayout.astro";
 let title = "LeaderBarber - Registrar";
 let description = "";
 let error = "";
+export const prerender = false;
+
+const formContainers: FormRegisterUser[] = [
+  {
+    label: "Nombres",
+    type: "text",
+    name: "firstName",
+    id: "firstName",
+    placeholder: "Amelia Polanco",
+    required: true,
+    // class: "",
+  },
+  {
+    label: "Apellidos",
+    type: "text",
+    name: "lastName",
+    id: "lastName",
+    placeholder: "Diaz Ventura",
+    required: true,
+    // class: "p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline",
+  },
+  {
+    label: "Telefono",
+    type: "text",
+    name: "phone",
+    id: "phone",
+    placeholder: "8094452225",
+    required: true,
+  },
+  {
+    label: "Fecha de nacimiento",
+    type: "date",
+    name: "dob",
+    id: "dob",
+    placeholder: "05-05-2005",
+    required: true,
+  },
+  {
+    label: "Correo",
+    type: "email",
+    name: "email",
+    id: "email",
+    placeholder: "AmeliaDiaz@gmail.com",
+  },
+  {
+    label: "Contraseña",
+    type: "password",
+    name: "password",
+    id: "password",
+    placeholder: "AmDiaz212@!#",
+  },
+];
+
+const httpPost = Astro.request.method === "POST";
+const httpGet = Astro.request.method === "GET";
+const httpPut = Astro.request.method === "PUT";
+const httpDelete = Astro.request.method === "DELETE";
+
+if (httpPost) {
+  try {
+    const data = await Astro.request.formData();
+    const firstName = data.get("firstName");
+    const lastName = data.get("lastName");
+    const phone = data.get("phone");
+    const email = data.get("email");
+    const dob = data.get("dob");
+    const password = data.get("password");
+    console.log({ firstName, lastName, phone, email, dob, password });
+    // Do something with the data
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
 ---
 
 <AuthLayout title="LeaderBarber - Registrar" description="">
@@ -11,80 +86,26 @@ let error = "";
     <h1 class="text-2xl font-bold px-4 py-3">LeaderBarber</h1>
   </header>
 
-  <div class="m-auto bg-white px-52 py-10 h-auto w-auto">
+  <div class="bg-white grid justify-center m-auto">
     <h1 class="text-2xl font-normal text-black">Crea tu cuenta</h1>
-    <form>
-      <div class="form-control my-5 text-black">
-        <label for="name">Nombres</label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          class="p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline"
-          placeholder="Amelia Polanco"
-          required
-        />
-      </div>
+    <form method="POST" class="">
+      {
+        formContainers.map((formContainer) => (
+          <div class="form-control my-5 text-black">
+            <label for={formContainer.id}>{formContainer.label}</label>
+            <input
+              type={formContainer.type}
+              name={formContainer.name}
+              id={formContainer.id}
+              class="p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline"
+              placeholder={formContainer.placeholder}
+              required={formContainer.required}
+            />
+          </div>
+        ))
+      }
 
-      <div class="form-control my-5 text-black">
-        <label for="name" class="">Apellidos</label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          class="p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline"
-          placeholder="Diaz Ventura"
-          required
-        />
-      </div>
-      <div class="form-control my-5 text-black">
-        <label for="name">Telefono</label>
-        <input
-          type="text"
-          name="name"
-          maxlength={10}
-          id="name"
-          class="p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline"
-          placeholder="8094452225"
-          required
-        />
-      </div>
-      <div class="form-control my-5 text-black">
-        <label for="name">Fecha de nacimiento</label>
-        <input
-          type="date"
-          name="name"
-          id="name"
-          class="p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline"
-          placeholder="05-05-2005"
-          required
-        />
-      </div>
-      <div class="form-control my-5 text-black">
-        <label for="name" class="">Correo Eléctronico</label>
-        <input
-          type="email"
-          name="name"
-          id="name"
-          class="p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline"
-          placeholder="AmeliaVentura@gmail.com"
-          required
-        />
-      </div>
-
-      <div class="form-control my-5 text-black">
-        <label for="name" class="">Contraseña</label>
-        <input
-          type="password"
-          name="name"
-          id="name"
-          class="p-2 block w-64 rounded-md bg-[#f4f4f4] border-transparent focus:outline-gray-500 focus:outline-2 focus:outline"
-          placeholder="Ame!225iam"
-          required
-        />
-      </div>
-
-      <button class="bg-black text-white p-2 rounded-md w-64"
+      <button type="submit" class="bg-black text-white p-2 rounded-md w-64"
         >Registrarse</button
       >
     </form>
