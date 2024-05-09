@@ -22,15 +22,14 @@ const { title, description } = Astro.props;
     <title>{title}</title>
     <ViewTransitions />
   </head>
-  <body class="min-h-screen bg-gray-900">
-    <main class="min-w-5xl">
+  <body class="bg-white">
+    <main class="min-h-screen">
       <slot />
     </main>
     <style>
       html {
         font-family: system-ui, sans-serif;
         background-size: 224px;
-        color-scheme: dark light;
       }
     </style>
   </body>
