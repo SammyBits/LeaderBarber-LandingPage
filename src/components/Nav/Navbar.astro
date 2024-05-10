@@ -1,5 +1,17 @@
 ---
 import Nav from "./Nav.astro";
+import { SignIn, SignOut } from "auth-astro/components";
+import { getSession } from "auth-astro/server";
+import { registerClientGoogle } from "../../services/auth/AuthServices";
+
+const session = await getSession(Astro.request);
+const clientGoogle: ClientGoogle = {
+  id: session?.user?.id,
+  name: session?.user?.name,
+  email: session?.user?.email,
+  image: session?.user?.image,
+};
+await registerClientGoogle(clientGoogle);
 ---
 
 <nav
@@ -15,14 +27,18 @@ import Nav from "./Nav.astro";
     href="#Barberos"
     styles="hover:underline  underline-offset-8"
   />
-  <Nav
-    title="Iniciar Sesión"
-    href=""
-    styles="hover:underline  underline-offset-8"
-  />
-  <Nav
-    title="Registrate!"
-    href="/auth/Register/"
-    styles="transition duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black"
-  />
+  {
+    !session ? (
+      <SignIn
+        provider={"google"}
+        class="transition duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black"
+      >
+        Iniciar Sesión con Google
+      </SignIn>
+    ) : (
+      <SignOut class="transition duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black">
+        Cerrar Sesión
+      </SignOut>
+    )
+  }
 </nav>

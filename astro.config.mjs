@@ -1,12 +1,18 @@
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
+import auth from "auth-astro";
+
+import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
-  output: "hybrid",
+  output: "server",
   i18n: {
     locales: ["en-US", "es-ES"],
-    defaultLocale: "en-US",
+    defaultLocale: "en-US"
   },
-  integrations: [tailwind()],
+  integrations: [tailwind(), auth()],
+  adapter: node({
+    mode: "standalone"
+  })
 });

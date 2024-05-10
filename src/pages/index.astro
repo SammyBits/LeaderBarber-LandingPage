@@ -10,6 +10,8 @@ import cortePeloModerno from "../assets/imgs/corte-pelo-moderno.jpg";
 import cortePeloBarba from "../assets/imgs/corte-pelo-barba.jpg";
 import cortePeloBarbaDiseño from "../assets/imgs/corte-pelo-barba-diseño.jpg";
 import cortePeloBarbaModerno from "../assets/imgs/corte-pelo-barba-moderno.webp";
+import { getSession } from "auth-astro/server";
+const session = await getSession(Astro.request);
 
 interface HaircutService {
   title: string;
@@ -102,44 +104,59 @@ const haircutServices: HaircutService[] = [
     </div>
   </Section>
 
-  <Section id="Estilos">
+  <Section id="Estilos" styles="py-24 md:py-32 lg:py-24">
     <div class="container mx-auto">
-      <h1 class="text-black">Aqui va un texto</h1>
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
-      >
-        {
-          haircutServices.map((card, index) => (
-            <div class="bg-[#101829] rounded-lg shadow-md overflow-hidden h-full m-5 ">
-              <Image
-                src={card.image}
-                alt={card.title}
-                class="w-full h-60 object-cover"
-              />
-              <div class="py-6 px-14 ">
-                <h3 class="text-xl font-bold text-white">{card.title}</h3>
-                <div class="flex items-center mt-2">
-                  <span class="text-white font-bold text-sm">{card.price}</span>
-                  <span class="text-white text-sm mx-2">|</span>
-                  <span class="text-white text-sm capitalize">
-                    {card.duration}
-                  </span>
-                </div>
-                <p class="text-gray-300 mt-2 text-pretty">{card.description}</p>
-                <div class="mt-4">
-                  <Button
-                    title="Reservar"
-                    redirect="/reservar"
-                    styles=" bg-[#F5C24C] text-md text-gray-900"
-                  />
+      <div class="flex flex-col items-center text-center text-balance">
+        <h2
+          class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-4xl/none text-[#101829]"
+        >
+          Nuestros Estilos
+        </h2>
+        <p class="mx-auto max-w-[700px] text-[#101829] md:text-xl">
+          Descubre los estilos de corte de pelo y barba que ofrecemos. ¡Elige el
+          que mejor se adapte a ti!
+        </p>
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
+        >
+          {
+            haircutServices.map((card, index) => (
+              <div class="bg-[#101829] rounded-lg shadow-md overflow-hidden h-full m-5 ">
+                <Image
+                  src={card.image}
+                  alt={card.title}
+                  class="w-full h-60 object-cover"
+                />
+                <div class="py-6 px-14 ">
+                  <h3 class="text-xl font-bold text-white">{card.title}</h3>
+                  <div class="flex items-center mt-2">
+                    <span class="text-white font-bold text-sm">
+                      {card.price}
+                    </span>
+                    <span class="text-white text-sm mx-2">|</span>
+                    <span class="text-white text-sm capitalize">
+                      {card.duration}
+                    </span>
+                  </div>
+                  <p class="text-gray-300 mt-2 text-pretty">
+                    {card.description}
+                  </p>
+
+                  <div class="flex mt-6">
+                    <button class="bg-[#F5C24C] text-md text-gray-900 rounded-md py-2 font-medium w-full reservar">
+                      {session ? (
+                        "Reservar"
+                      ) : (
+                        <a href="#header">Inicia sesión para reservar</a>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        }
+            ))
+          }
+        </div>
       </div>
     </div>
   </Section>
 </Layout>
-
-<script></script>
