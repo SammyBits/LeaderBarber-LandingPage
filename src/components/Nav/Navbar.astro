@@ -1,17 +1,27 @@
 ---
 import Nav from "./Nav.astro";
 import { SignIn, SignOut } from "auth-astro/components";
+import Profile from "../Profile.astro";
 import { getSession } from "auth-astro/server";
-import { registerClientGoogle } from "../../services/auth/AuthServices";
+import {
+  registerClientGoogle,
+  isClientGoogle,
+} from "../../services/auth/AuthServices";
 
 const session = await getSession(Astro.request);
+const isClientExist = session
+  ? await isClientGoogle(session?.user?.email!)
+  : false;
 const clientGoogle: ClientGoogle = {
   id: session?.user?.id,
   name: session?.user?.name,
   email: session?.user?.email,
   image: session?.user?.image,
 };
-await registerClientGoogle(clientGoogle);
+
+if (!isClientExist && session) {
+  await registerClientGoogle(clientGoogle);
+}
 ---
 
 <nav
@@ -20,12 +30,12 @@ await registerClientGoogle(clientGoogle);
   <Nav
     title="Estilos"
     href="#Estilos"
-    styles="hover:underline  underline-offset-8"
+    styles="hover:underline underline-offset-8"
   />
   <Nav
     title="Barberos"
     href="#Barberos"
-    styles="hover:underline  underline-offset-8"
+    styles="hover:underline underline-offset-8"
   />
   {
     !session ? (
@@ -36,9 +46,12 @@ await registerClientGoogle(clientGoogle);
         Iniciar Sesión con Google
       </SignIn>
     ) : (
-      <SignOut class="transition duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black">
-        Cerrar Sesión
-      </SignOut>
+      <div class="flex items-center space-x-4">
+        <Profile />
+      </div>
+      // <SignOut class="transition duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black">
+      //   Cerrar Sesión
+      // </SignOut>
     )
   }
 </nav>
