@@ -22,7 +22,7 @@ if (session && !isExist) {
   registerClientGoogleIfNotExists(clientGoogle);
   sendEmailHtml(
     clientGoogle.email as string,
-    "Bienvenido a Barbería El Corte",
+    "Haz iniciado sesión en LeaderBarber",
     `<!doctype html>
 <html lang="es">
   <head>
@@ -82,8 +82,8 @@ if (session && !isExist) {
       </p>
       <p>
         Si no te has registrado con esta cuenta, por favor contáctanos a
-        <a href="mailto:correo@barberiaelcorte.com"
-          >correo@barberiaelcorte.com</a
+        <a href="mailto:theleaderbarber@gmail.com"
+          >TheLeaderBarber@gmail.com</a
         >
       </p>
       <a class="button" href="#">Ver nuestros servicios</a>
