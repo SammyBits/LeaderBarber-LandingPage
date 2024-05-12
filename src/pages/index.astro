@@ -14,7 +14,7 @@ import barber1 from "../assets/imgs/barbers/barber1.avif";
 import barber2 from "../assets/imgs/barbers/barber2.avif";
 import barber3 from "../assets/imgs/barbers/barber3.avif";
 import { getSession } from "auth-astro/server";
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
 const id = uuidv4();
 const session = await getSession(Astro.request);
 
@@ -89,10 +89,7 @@ const haircutServices: HaircutService[] = [
   title="LeaderBarber - Encuentra tu estilo de pelo"
   description="Reserva citas con los mejores barberos de LeaderBarber. Consulta sus estilos, precios y tiempos de espera."
 >
-  <Section
-    id="hero"
-    styles="text-white bg-gray-900 py-64 md:py-24 lg:py-56 xl:py-60"
-  >
+  <Section id="hero" styles="text-white bg-gray-900 py-24 md:py-32">
     <div class="flex flex-col items-center space-y-2 text-center text-balance">
       <h1
         class="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-6xl/none"
@@ -116,139 +113,128 @@ const haircutServices: HaircutService[] = [
     </div>
   </Section>
 
-  <Section id="Estilos" styles="py-24 md:py-32">
+  <Section id="Estilos" styles="pb-0 md:pb-24 py-0 md:py-0">
     <div class="container mx-auto">
-      <div class="flex flex-col items-center text-center text-balance">
+      <div class="flex flex-col text-left text-balance py-14">
         <h2
           class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-4xl/none text-[#101829]"
         >
           Nuestros Estilos
         </h2>
-        <p class="mx-auto max-w-[700px] text-[#101829] md:text-xl">
+        <p class="max-w-md text-[#101829] md:text-xl">
           Descubre los estilos de corte de pelo y barba que ofrecemos. ¡Elige el
           que mejor se adapte a ti!
         </p>
-        <div
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
-        >
-          {
-            haircutServices.map((card) => (
-              <div class="bg-[#101829] rounded-lg shadow-md overflow-hidden h-full m-5 ">
-                <Image
-                  src={card.image}
-                  alt={card.title}
-                  class="w-full h-60 object-cover"
-                />
-                <div class="py-6 px-14 ">
-                  <h3 class="text-xl font-bold text-white">{card.title}</h3>
-                  <div class="flex items-center mt-2">
-                    <span class="text-white font-bold text-sm">
-                      {card.price}
-                    </span>
-                    <span class="text-white text-sm mx-2">|</span>
-                    <span class="text-white text-sm capitalize">
-                      {card.duration}
-                    </span>
-                  </div>
-                  <p class="text-gray-300 mt-2 text-balance text-left">
-                    {card.description}
-                  </p>
+      </div>
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
+      >
+        {
+          haircutServices.map((card) => (
+            <div class="bg-[#101829] rounded-lg shadow-lg shadow-gray-700 overflow-hidden h-full flex flex-col m-auto">
+              <Image
+                src={card.image}
+                alt={card.title}
+                class="w-full h-60 object-cover"
+              />
+              <div class="py-6 px-14 ">
+                <h3 class="text-xl font-bold text-white text-left">
+                  {card.title}
+                </h3>
+                <div class="flex items-center mt-2">
+                  <span class="text-white font-bold text-sm">{card.price}</span>
+                  <span class="text-white text-sm mx-2">|</span>
+                  <span class="text-white text-sm capitalize">
+                    {card.duration}
+                  </span>
+                </div>
+                <p class="text-gray-300 mt-2 text-balance text-left">
+                  {card.description}
+                </p>
 
-                  <div class="flex m-auto align-bottom justify-items-center mt-6">
-                    {session ? (
-                        <a href={`/citas/${card.slug}/${uuidv4()}`} class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3 hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 ">
-
-                          Reservar
-
-                        </a>
-                    ) : (
-                      <button class="bg-[#F5C24C] text-black font-bold px-6 py-2.5 rounded-lg mt-3 hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105">
-                        <a href="/login">Iniciar sesión</a>
-                      </button>
-                    )}
-                  </div>
+                <div class="flex m-auto align-bottom justify-items-center mt-6">
+                  {session ? (
+                    <a
+                      href={`/citas/${card.slug}/${uuidv4()}`}
+                      class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3  text-center hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 "
+                    >
+                      Reservar
+                    </a>
+                  ) : (
+                    <button class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3  text-center hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 ">
+                      <a href="/login">Accede para reservar</a>
+                    </button>
+                  )}
                 </div>
               </div>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </Section>
-
-  <Section id="Barberos" styles="bg-gray-100 py-24 md:py-32">
-    <div class="container mx-auto">
-      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8 capitalize">
-        Conozca a nuestros talentosos barberos
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        <div
-          class="rounded-lg border bg-card text-card-foreground shadow-sm"
-          data-v0-t="card"
-        >
-          <Image
-            src={barber1}
-            alt="Barber 1"
-            width="500"
-            height="100"
-            class="rounded-t-lg"
-            style="aspect-ratio:100/100;object-fit:cover"
-          />
-          <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">John Doe</h3>
-            <p class="text-gray-600 mb-4">Peluquero Maestro</p>
-            <p class="text-gray-600">
-              John tiene más de 15 años de experiencia y se especializa en
-              estilos clásicos como el pompadour y el fade. clásicos como el
-              pompadour y el fade.
-            </p>
-          </div>
-        </div>
-        <div
-          class="rounded-lg border bg-card text-card-foreground shadow-sm"
-          data-v0-t="card"
-        >
-          <Image
-            src={barber2}
-            alt="Barber 2"
-            width="500"
-            height="500"
-            class="rounded-t-lg"
-            style="aspect-ratio:400/400;object-fit:cover"
-          />
-          <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Jane Smith</h3>
-            <p class="text-gray-600 mb-4">Peluquero jefe</p>
-            <p class="text-gray-600">
-              Jane es conocida por sus cortes de precisión y su experiencia en
-              modernos como el undercut.
-            </p>
-          </div>
-        </div>
-        <div
-          class="rounded-lg border bg-card text-card-foreground shadow-sm"
-          data-v0-t="card"
-        >
-          <Image
-            src={barber3}
-            alt="Barber 3"
-            width="500"
-            height="400"
-            class="rounded-t-lg"
-            style="aspect-ratio:400/400;object-fit:cover"
-          />
-          <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">
-              Michael Johnson
-            </h3>
-            <p class="text-gray-600 mb-4">Aprendiz de barbero</p>
-            <p class="text-gray-600">
-              Michael es una estrella emergente del sector, conocido por su
-              creatividad y atención al detalle.
-            </p>
-          </div>
-        </div>
+            </div>
+          ))
+        }
       </div>
     </div>
   </Section>
 </Layout>
+
+<Section id="Barberos" styles="bg-gray-100 py-14 md:py-14">
+  <div class="container mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8 capitalize">
+      Conozca a nuestros talentosos barberos
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+      <div class="rounded-lg bg-card text-card-foreground" data-v0-t="card">
+        <Image
+          src={barber1}
+          alt="Barber 1"
+          width="500"
+          height="100"
+          class="rounded-t-lg"
+          style="aspect-ratio:100/100;object-fit:cover"
+        />
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">John Doe</h3>
+          <p class="text-gray-600 mb-4">Peluquero Maestro</p>
+          <p class="text-gray-600">
+            John tiene más de 15 años de experiencia y se especializa en estilos
+            clásicos como el pompadour y el fade.
+          </p>
+        </div>
+      </div>
+      <div class="rounded-lg bg-card text-card-foreground" data-v0-t="card">
+        <Image
+          src={barber2}
+          alt="Barber 2"
+          width="500"
+          height="500"
+          class="rounded-t-lg"
+          style="aspect-ratio:400/400;object-fit:cover"
+        />
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Jane Smith</h3>
+          <p class="text-gray-600 mb-4">Peluquero jefe</p>
+          <p class="text-gray-600">
+            Jane es conocida por sus cortes de precisión y su experiencia en
+            modernos como el undercut.
+          </p>
+        </div>
+      </div>
+      <div class="rounded-lg bg-card text-card-foreground" data-v0-t="card">
+        <Image
+          src={barber3}
+          alt="Barber 3"
+          width="500"
+          height="400"
+          class="rounded-t-lg"
+          style="aspect-ratio:400/400;object-fit:cover"
+        />
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Michael Johnson</h3>
+          <p class="text-gray-600 mb-4">Aprendiz de barbero</p>
+          <p class="text-gray-600">
+            Michael es una estrella emergente del sector, conocido por su
+            creatividad y atención al detalle.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Section>
