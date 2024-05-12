@@ -4,14 +4,12 @@ import { SignIn, SignOut } from "auth-astro/components";
 import Profile from "../Profile.astro";
 import { getSession } from "auth-astro/server";
 import {
-  registerClientGoogle,
+  registerClientGoogleIfNotExists,
   isClientGoogle,
 } from "../../services/auth/AuthServices";
+import { sendEmailHtml } from "../../services/EmailServices";
 
 const session = await getSession(Astro.request);
-const isClientExist = session
-  ? await isClientGoogle(session?.user?.email!)
-  : false;
 const clientGoogle: ClientGoogle = {
   id: session?.user?.id,
   name: session?.user?.name,
@@ -19,8 +17,80 @@ const clientGoogle: ClientGoogle = {
   image: session?.user?.image,
 };
 
-if (!isClientExist && session) {
-  await registerClientGoogle(clientGoogle);
+const isExist = await isClientGoogle(clientGoogle.email as string);
+if (session && !isExist) {
+  registerClientGoogleIfNotExists(clientGoogle);
+  sendEmailHtml(
+    clientGoogle.email as string,
+    "Bienvenido a Barbería El Corte",
+    `<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>¡Bienvenido a LeaderBarber!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333333;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      p {
+        color: #666666;
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+      .emoji {
+        font-size: 32px;
+        margin-bottom: 20px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>¡Bienvenido a LeaderBarber! 🎉</h1>
+      <p>
+        Gracias por registrarte en nuestra plataforma, esperamos que disfrutes
+        de nuestros servicios.
+      </p>
+      <p>
+        Si no te has registrado con esta cuenta, por favor contáctanos a
+        <a href="mailto:correo@barberiaelcorte.com"
+          >correo@barberiaelcorte.com</a
+        >
+      </p>
+      <a class="button" href="#">Ver nuestros servicios</a>
+    </div>
+  </body>
+</html>`
+  );
 }
 ---
 
@@ -29,7 +99,7 @@ if (!isClientExist && session) {
 >
   <Nav
     title="Estilos"
-    href="#Estilos"
+    href="test"
     styles="hover:underline underline-offset-8"
   />
   <Nav
@@ -49,9 +119,6 @@ if (!isClientExist && session) {
       <div class="flex items-center space-x-4">
         <Profile />
       </div>
-      // <SignOut class="transition duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black">
-      //   Cerrar Sesión
-      // </SignOut>
     )
   }
 </nav>
