@@ -14,10 +14,13 @@ import barber1 from "../assets/imgs/barbers/barber1.avif";
 import barber2 from "../assets/imgs/barbers/barber2.avif";
 import barber3 from "../assets/imgs/barbers/barber3.avif";
 import { getSession } from "auth-astro/server";
+import {v4 as uuidv4} from "uuid";
+const id = uuidv4();
 const session = await getSession(Astro.request);
 
 interface HaircutService {
   title: string;
+  slug: string;
   price: string;
   description: string;
   image: ImageMetadata;
@@ -27,6 +30,7 @@ interface HaircutService {
 const haircutServices: HaircutService[] = [
   {
     title: "Corte de Pelo Clásico",
+    slug: "corte-pelo-clasico",
     price: "RD$400",
     description:
       "¡Renueva tu estilo con un corte de pelo clásico! Nuestros estilistas expertos se asegurarán de que te veas y te sientas genial.",
@@ -35,6 +39,7 @@ const haircutServices: HaircutService[] = [
   },
   {
     title: "Barba Perfecta",
+    slug: "barba-perfecta",
     price: "RD$200",
     description:
       "Dale a tu barba el cuidado que se merece con nuestro corte de barba clásico. ¡Lucirás impecable y a la moda en poco tiempo!",
@@ -43,6 +48,7 @@ const haircutServices: HaircutService[] = [
   },
   {
     title: "Estilo Moderno",
+    slug: "estilo-moderno",
     price: "RD$600",
     description:
       "¿Buscas un cambio audaz? Prueba nuestro corte de pelo moderno. Nuestros estilistas te ayudarán a destacar con un estilo fresco.",
@@ -51,6 +57,7 @@ const haircutServices: HaircutService[] = [
   },
   {
     title: "Combinación Clásica",
+    slug: "combinacion-clasica",
     price: "RD$550",
     description:
       "Disfruta lo mejor de ambos mundos con nuestro combo de corte de pelo y barba clásicos. ¡Te sentirás renovado y listo para conquistar el mundo!",
@@ -59,6 +66,7 @@ const haircutServices: HaircutService[] = [
   },
   {
     title: "Diseño Personalizado",
+    slug: "diseno-personalizado",
     price: "RD$800",
     description:
       "Haz una declaración de estilo con nuestro corte de pelo y barba con diseño personalizado. ¡Deja que nuestros expertos creen una obra maestra única para ti!",
@@ -67,6 +75,7 @@ const haircutServices: HaircutService[] = [
   },
   {
     title: "Mimos Extra",
+    slug: "mimos-extra",
     price: "RD$1000",
     description:
       "¡Date el lujo que te mereces con nuestro paquete de corte de pelo y barba de lujo! Disfruta de un servicio VIP que te dejará sintiéndote renovado y rejuvenecido.",
@@ -123,7 +132,7 @@ const haircutServices: HaircutService[] = [
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
         >
           {
-            haircutServices.map((card, index) => (
+            haircutServices.map((card) => (
               <div class="bg-[#101829] rounded-lg shadow-md overflow-hidden h-full m-5 ">
                 <Image
                   src={card.image}
@@ -146,13 +155,17 @@ const haircutServices: HaircutService[] = [
                   </p>
 
                   <div class="flex m-auto align-bottom justify-items-center mt-6">
-                    <button class="bg-yellow-400 hover:bg-yellow-300 text-md text-gray-900 rounded-md py-2 font-medium w-full reservar">
-                      {session ? (
-                        "Reservar"
-                      ) : (
-                        <a href="#header">Inicia sesión para reservar</a>
-                      )}
-                    </button>
+                    {session ? (
+                        <a href={`/citas/${card.slug}/${uuidv4()}`} class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3 hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 ">
+
+                          Reservar
+
+                        </a>
+                    ) : (
+                      <button class="bg-[#F5C24C] text-black font-bold px-6 py-2.5 rounded-lg mt-3 hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105">
+                        <a href="/login">Iniciar sesión</a>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
