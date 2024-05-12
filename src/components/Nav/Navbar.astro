@@ -18,6 +18,7 @@ const clientGoogle: ClientGoogle = {
 };
 
 const isExist = await isClientGoogle(clientGoogle.email as string);
+console.log(isExist);
 if (session && !isExist) {
   registerClientGoogleIfNotExists(clientGoogle);
   sendEmailHtml(
