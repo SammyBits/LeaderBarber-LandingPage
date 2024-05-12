@@ -7,7 +7,6 @@ const id = uuidv4();
 const session = await getSession(Astro.request);
 
 const result = await getStyles();
-console.log(result);
 const haircutServices = result as StylesServices[];
 ---
 
@@ -31,7 +30,8 @@ const haircutServices = result as StylesServices[];
         haircutServices.map((style) => (
           <div class="bg-[#101829] rounded-lg shadow-lg shadow-gray-700 overflow-hidden h-full flex flex-col m-auto">
             <img
-              src={style.image!}
+              src={`/assets/imgs/styles/${style.image!}`}
+              loading="lazy"
               alt={style.title}
               class="w-full h-60 object-cover"
             />
@@ -58,7 +58,7 @@ const haircutServices = result as StylesServices[];
                   </a>
                 ) : (
                   <button class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3  text-center hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 ">
-                    <a href="/login">Accede para reservar</a>
+                    <a href="#header">Accede para reservar</a>
                   </button>
                 )}
               </div>
