@@ -1,7 +1,11 @@
 ---
+interface Props {
+  styles?: string;
+}
 
+const { styles } = Astro.props;
 ---
 
-<div class="grid grid-flow-row rounded py-6 bg-white">
+<div class:list={["grid grid-flow-row rounded py-6 bg-white", styles]}>
   <slot />
 </div>
