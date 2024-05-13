@@ -79,7 +79,7 @@ const barberOptions: Barbers[] = barbers
             </div>
             <button
               class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-800 text-white hover:bg-gray-600 h-10 px-4 py-2 w-full"
-              type="submit"
+              id="confirm-button"
             >
               Confirmar cita
             </button>
@@ -89,11 +89,13 @@ const barberOptions: Barbers[] = barbers
             <h2 class="text-lg font-medium">Cita confirmada</h2>
             <div class="grid grid-cols-2 gap-2">
               <div class="text-gray-500 dark:text-gray-400">Fecha y hora:</div>
-              <h1 id="datetime-select">No definida</h1>
+              <p id="datetime-select">No definida</p>
               <div class="text-gray-500 dark:text-gray-400">Barbero:</div>
               <p id="barber-select">No definido</p>
               <div class="text-gray-500 dark:text-gray-400">Estilo:</div>
               <p class="capitalize">{nameStyle}</p>
+              <div class="text-gray-500 dark:text-gray-400">Precio:</div>
+              <p class="capitalize">{price}</p>
             </div>
           </div>
         </div>
@@ -103,7 +105,9 @@ const barberOptions: Barbers[] = barbers
 </PlainLayout>
 
 <script>
+  import Swal from "sweetalert2";
   // Obtener el elemento del campo de fecha
+  var confirmButton = document.getElementById("confirm-button");
   var fechaInput = document.getElementById("date-time") as HTMLInputElement;
   var barberSelect = document.getElementById("barber") as HTMLSelectElement;
   var datetimeSelect = document.getElementById(
@@ -132,4 +136,31 @@ const barberOptions: Barbers[] = barbers
   barberSelect.addEventListener("change", function () {
     barberParagraphSelect.textContent = barberSelect.value;
   });
+
+  confirmButton?.addEventListener("click", (event) => {
+    event.preventDefault();
+    handleConfirmation();
+  });
+
+  const handleConfirmation = () => {
+    Swal.fire({
+      title: "¿Seguro que quieres confirmar la cita?",
+      text: "Una vez confirmada, no podrás cambiar la fecha ni la hora.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, confirmar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire(
+          "¡Cita confirmada!",
+          "Tu cita ha sido confirmada.",
+          "success"
+        );
+        window.location.href = `/`;
+      }
+    });
+  };
 </script>
