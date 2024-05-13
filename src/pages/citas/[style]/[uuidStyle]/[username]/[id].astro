@@ -1,8 +1,12 @@
 ---
 import { ViewTransitions } from "astro:transitions";
 import PlainLayout from "../../../../../layouts/PlainLayout.astro";
-
+import { getBarbers } from "../../../../../services/BarbersServices";
+import Barbers from "../../../../../components/Sections/Barbers.astro";
 const { style, uuidStyle, username, id } = Astro.params;
+
+const barbers = await getBarbers();
+const barberOptions: Barbers[] = barbers.filter((barber: Barbers) => barber.available).map((barber: Barbers) => barber.firstName + " " + barber.lastName);
 ---
 
 <PlainLayout
@@ -62,9 +66,9 @@ const { style, uuidStyle, username, id } = Astro.params;
               <option value="" disabled selected>
                 Selecciona un barbero
               </option>
-              <option value="1">Juan Pérez</option>
-              <option value="2">Pedro González</option>
-              <option value="3">Carlos Ramírez</option>
+              {barberOptions.map((barber: Barbers) => (
+                <option value={barber.uuid!}>{barber}</option>
+              ))}
             </select>
           </div>
 

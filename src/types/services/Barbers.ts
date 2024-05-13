@@ -7,6 +7,7 @@ type Barbers = {
   phone: string;
   description: string;
   photo?: string;
+  available: boolean;
   createdAt?: string;
   status?: boolean;
 };
