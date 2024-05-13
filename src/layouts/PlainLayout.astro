@@ -17,6 +17,8 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <link rel="stylesheet" href="@sweetalert2/themes/dark/dark.css" />
+
     <title>{title}</title>
     <ViewTransitions />
   </head>
@@ -24,10 +26,12 @@ const { title, description } = Astro.props;
     <main class="min-w-5xl">
       <slot />
     </main>
+    <script src="sweetalert2/dist/sweetalert2.min.js"></script>
+
+    <style is:global>
+      html {
+        font-family: system-ui, sans-serif;
+      }
+    </style>
   </body>
-  <style is:global>
-    html {
-      font-family: system-ui, sans-serif;
-    }
-  </style>
 </html>
