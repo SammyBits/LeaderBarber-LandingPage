@@ -1,4 +1,4 @@
-type response<T> = {
-  message: string;
-  result: T;
-};
+type response = {
+    message: string;
+    result: boolean;
+  };

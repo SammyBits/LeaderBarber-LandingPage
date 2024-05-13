@@ -51,7 +51,7 @@ const haircutServices = result as StylesServices[];
               <div class="flex m-auto align-bottom justify-items-center mt-6">
                 {session ? (
                   <a
-                    href={`/citas/${style.slug}/${style.uuid}/${session.user?.name}/${uuidv4()}`}
+                    href={`/citas/${style.slug}/${style.uuid}/${session.user?.name}/${uuidv4()}/${style.price}`}
                     class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3  text-center hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 "
                   >
                     Reservar
