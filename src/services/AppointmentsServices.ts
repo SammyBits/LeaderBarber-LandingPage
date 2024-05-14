@@ -14,6 +14,26 @@ export const getAppointments = async () => {
   }
 };
 
+export const getAppointmentsByClient = async (
+  clientEmail: string,
+): Promise<Appointments[] | null> => {
+  try {
+    console.log("clientId", clientEmail);
+    const response = await fetch(
+      `${BASEAPI_URL}/v1/appointments/${clientEmail}`,
+    );
+    const { message, result } = await response.json();
+    console.log("message", message);
+    console.log("result", result);
+    if (response.ok) {
+      return result;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return null;
+};
+
 export const createAppointment = async (appointment: Appointments) => {
   try {
     const response = await fetch(`${BASEAPI_URL}/v1/appointments`, {

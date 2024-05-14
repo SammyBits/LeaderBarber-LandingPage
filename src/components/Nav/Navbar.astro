@@ -2,12 +2,17 @@
 import Nav from "./Nav.astro";
 import { SignIn, SignOut } from "auth-astro/components";
 import Profile from "../Profile.astro";
+import { v4 as uuidv4 } from "uuid";
+
 import { getSession } from "auth-astro/server";
+const uuid = uuidv4();
+
 import {
   registerClientGoogleIfNotExists,
   isClientGoogle,
 } from "../../services/auth/AuthServices";
 import { sendEmailHtml } from "../../services/EmailServices";
+import { getAppointmentsByClient } from "../../services/AppointmentsServices";
 
 const session = await getSession(Astro.request);
 const clientGoogle: ClientGoogle = {
@@ -18,7 +23,7 @@ const clientGoogle: ClientGoogle = {
 };
 
 const isExist = await isClientGoogle(clientGoogle.email as string);
-console.log(isExist);
+
 if (session && !isExist) {
   registerClientGoogleIfNotExists(clientGoogle);
   sendEmailHtml(
@@ -141,6 +146,11 @@ if (session && !isExist) {
       </SignIn>
     ) : (
       <div class="flex items-center space-x-4">
+        <Nav
+          title="Tus Citas"
+          href={`/citas/${session.user?.email}/${uuid}`}
+          styles="hover:underline underline-offset-8"
+        />
         <Profile />
       </div>
     )

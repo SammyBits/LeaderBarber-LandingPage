@@ -1,6 +1,6 @@
 import { BASEAPI_URL } from "../utils/BaseSettings";
 
-export const getBarbers = async () => {
+export const getBarbers = async (): Promise<Barbers[] | null> => {
   try {
     const response = await fetch(`${BASEAPI_URL}/v1/barbers`);
     const { message, result } = await response.json();
@@ -12,4 +12,5 @@ export const getBarbers = async () => {
   } catch (error) {
     console.error(error);
   }
+  return null;
 };
