@@ -4,8 +4,6 @@ export const getAppointments = async () => {
   try {
     const response = await fetch(`${BASEAPI_URL}/v1/appointments`);
     const { message, result } = await response.json();
-    console.log("message", message);
-    console.log("result", result);
     if (response.ok) {
       return result;
     }
@@ -23,8 +21,6 @@ export const getAppointmentsByClient = async (
       `${BASEAPI_URL}/v1/appointments/${clientEmail}`,
     );
     const { message, result } = await response.json();
-    console.log("message", message);
-    console.log("result", result);
     if (response.ok) {
       return result;
     }
