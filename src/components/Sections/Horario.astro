@@ -1,0 +1,26 @@
+---
+import Section from "../Section.astro";
+import { getSession } from "auth-astro/server";
+import { v4 as uuidv4 } from "uuid";
+import { getStyles } from "../../services/StylesServices";
+---
+
+<Section id="Horarios" styles="pb-0  lg:px-24 py-0 md:py-0 lg:py-0 bg-[#111827]">
+  <div class="container mx-auto">
+    <div class="flex flex-col text-left text-balance py-14">
+      <h2
+        class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-4xl/none text-white"
+      >
+        Horario de atención al público
+      </h2>
+      <p class="max-w-md text-white md:text-xl">
+        Esto es un horario de atención al público, en el cual se puede
+        visualizar los horarios de atención de la empresa.
+      </p>
+    </div>
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
+    >
+    </div>
+  </div>
+</Section>

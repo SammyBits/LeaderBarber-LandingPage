@@ -17,6 +17,7 @@ import { getSession } from "auth-astro/server";
 import { v4 as uuidv4 } from "uuid";
 import Styles from "../components/Sections/Styles.astro";
 import Barbers from "../components/Sections/Barbers.astro";
+import Horario from "../components/Sections/Horario.astro";
 const id = uuidv4();
 const session = await getSession(Astro.request);
 
@@ -60,4 +61,5 @@ interface HaircutService {
 
   <Styles />
   <Barbers />
+  <Horario/>
 </Layout>

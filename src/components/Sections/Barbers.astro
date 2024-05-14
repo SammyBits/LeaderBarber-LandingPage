@@ -3,11 +3,11 @@ import Section from "../Section.astro";
 import { getBarbers } from "../../services/BarbersServices";
 import { getSession } from "auth-astro/server";
 
-const barbers: Barbers[] = await getBarbers() as Barbers[];
+const barbers: Barbers[] = (await getBarbers()) as Barbers[];
 const session = await getSession(Astro.request);
 ---
 
-<Section id="Barberos" styles="bg-gray-100 py-14 md:py-14 lg:px-14">
+<Section id="Barberos" styles="bg-gray-100 py-14 md:py-14 lg:px-14 ">
   <div class="container mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8 capitalize">
       Conozca a nuestros talentosos barberos
@@ -27,10 +27,6 @@ const session = await getSession(Astro.request);
               </h3>
               <span class="text-gray-600 text-sm">{barber.specialty}</span>
               <p class="text-gray-600 mt-2">{barber.description}</p>
-              {session ? (
-                // Mostrar la cola que tiene cada barbero
-                <h1 class="text-gray-600 mt-2">Actualmente tiene: {barber.queue.length}</h1>
-              ): ""}
             </div>
           </div>
         ))
