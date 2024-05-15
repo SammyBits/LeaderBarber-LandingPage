@@ -3,8 +3,9 @@ import Section from "../components/Section.astro";
 import Layout from "../layouts/Layout.astro";
 import Styles from "../components/Sections/Styles.astro";
 import Barbers from "../components/Sections/Barbers.astro";
-import Horario from "../components/Sections/Horario.astro";
 import ToastSuccess from "../components/Toast/ToastSuccess.astro";
+import Offers from "../components/Sections/Offers.astro";
+import Schedule from "../components/Sections/Schedule.astro";
 const appointment = Astro.cookies.has("appointment");
 if (appointment) {
   console.log("appointment");
@@ -46,7 +47,8 @@ if (appointment) {
       />
     )
   }
+  <Offers />
   <Styles />
   <Barbers />
-  <Horario />
+  <Schedule />
 </Layout>
