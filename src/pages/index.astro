@@ -1,33 +1,13 @@
 ---
-import Button from "../components/Button.astro";
 import Section from "../components/Section.astro";
-import Card from "../components/Card.astro";
-import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
-import cortePelo from "../assets/imgs/corte-pelo.png";
-import barba from "../assets/imgs/barba.jpg";
-import cortePeloModerno from "../assets/imgs/corte-pelo-moderno.jpg";
-import cortePeloBarba from "../assets/imgs/corte-pelo-barba.jpg";
-import cortePeloBarbaDiseño from "../assets/imgs/corte-pelo-barba-diseño.jpg";
-import cortePeloBarbaModerno from "../assets/imgs/corte-pelo-barba-moderno.webp";
-import barber1 from "../assets/imgs/barbers/barber1.avif";
-import barber2 from "../assets/imgs/barbers/barber2.avif";
-import barber3 from "../assets/imgs/barbers/barber3.avif";
-import { getSession } from "auth-astro/server";
-import { v4 as uuidv4 } from "uuid";
 import Styles from "../components/Sections/Styles.astro";
 import Barbers from "../components/Sections/Barbers.astro";
 import Horario from "../components/Sections/Horario.astro";
-const id = uuidv4();
-const session = await getSession(Astro.request);
-
-interface HaircutService {
-  title: string;
-  slug: string;
-  price: string;
-  description: string;
-  image: ImageMetadata;
-  duration: string; // Duración estimada del servicio
+import ToastSuccess from "../components/Toast/ToastSuccess.astro";
+const appointment = Astro.cookies.has("appointment");
+if (appointment) {
+  console.log("appointment");
 }
 ---
 
@@ -58,8 +38,15 @@ interface HaircutService {
       </div>
     </div>
   </Section>
-
+  {
+    appointment && (
+      <ToastSuccess
+        title="Cita reservada"
+        message="Tu cita ha sido reservada con éxito"
+      />
+    )
+  }
   <Styles />
   <Barbers />
-  <Horario/>
+  <Horario />
 </Layout>

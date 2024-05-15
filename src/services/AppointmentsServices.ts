@@ -29,7 +29,9 @@ export const getAppointmentsByClient = async (
   return null;
 };
 
-export const createAppointment = async (appointment: Appointments) => {
+export const createAppointment = async (
+  appointment: Appointments,
+): Promise<Appointments | null> => {
   try {
     const response = await fetch(`${BASEAPI_URL}/v1/appointments`, {
       method: "POST",
@@ -39,10 +41,12 @@ export const createAppointment = async (appointment: Appointments) => {
       body: JSON.stringify(appointment),
     });
     const { message, result } = await response.json();
+    console.log(message);
     if (response.ok) {
       return result;
     }
   } catch (error) {
     console.error(error);
   }
+  return null;
 };
