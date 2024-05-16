@@ -1,6 +1,8 @@
+
 type Barbers = {
   uuid?: string;
   firstName: string;
+  queue: string[];
   lastName: string;
   userUUID: string;
   specialty: string[];
