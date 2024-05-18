@@ -7,10 +7,15 @@ import {
   type Appointments,
 } from "../../../../../../types/services/Appointments";
 import { sendEmailHtml } from "../../../../../../services/EmailServices";
+import ToastError from "../../../../../../components/Toast/ToastError.astro";
 const { style, uuidStyle, clientEmail, price } = Astro.params;
 
 const nameStyle = style?.replace(/-/g, " ");
 const barbers: Barbers[] = (await getBarbers()) ?? [];
+const error = Astro.cookies.has("error");
+if (error) {
+  console.log("error en alta");
+}
 const barberOptions = barbers.filter((barber: Barbers) => barber.available);
 if (Astro.request.method === "POST") {
   try {
@@ -31,13 +36,17 @@ if (Astro.request.method === "POST") {
 
     const response = await createAppointment(appointment);
     if (response) {
-    setAppointmentCookie();
-    const emailPromise = sendEmailHtml(clientEmail ?? "", "Cita agendada", emailContent());
-    // Show a loading indicator
-    await Promise.all([emailPromise]); // Wait for email sending to finish
-    // Hide the loading indicator, show success message
-    return Astro.redirect("/");
-}
+      setAppointmentCookie();
+      const emailPromise = sendEmailHtml(
+        clientEmail ?? "",
+        "Cita agendada",
+        emailContent()
+      );
+      // Show a loading indicator
+      await Promise.all([emailPromise]); // Wait for email sending to finish
+      // Hide the loading indicator, show success message
+      return Astro.redirect("/");
+    }
   } catch (error) {
     handleError(error);
   }
@@ -101,6 +110,7 @@ function handleError(error: any) {
               >
                 Fecha y hora
               </label>
+              <h1 id='errorDate' class="transition-opacity duration-300 ease-in-out"></h1>
               <input
                 type="datetime-local"
                 id="date-time"
@@ -158,7 +168,7 @@ function handleError(error: any) {
           </div>
         </div>
       </div>
-    </div>
+    </div> 
   </section>
 </PlainLayout>
 
@@ -167,6 +177,7 @@ function handleError(error: any) {
   import { $ } from "../../../../../../utils/BaseSettings";
   // Obtener el elemento del campo de fecha
   const fechaInput = $("#date-time") as HTMLInputElement;
+  const errorDate = $("#errorDate") as HTMLHeadingElement;
   const barberSelect = $("#barber") as HTMLSelectElement;
   const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
   const barberParagraphSelect = $("#barber-select") as HTMLParagraphElement;
@@ -180,15 +191,20 @@ function handleError(error: any) {
 
     // Si es sábado (6) o domingo (0), mostrar un mensaje de error y restablecer el valor del campo de fecha
     if (dayOfWeek === 6 || dayOfWeek === 0) {
-      alert("No se pueden seleccionar sábados ni domingos.");
-      fechaInput.value = ""; // Restablecer el valor del campo de fecha
+      errorDate.innerHTML = "No se pueden agendar citas los fines de semana";
+      fechaInput.value = "";
+      setTimeout(() => {
+        errorDate.innerHTML = "";
+      }, 2000);
+    } else {
+      errorDate.innerHTML = "";
     }
   }
 
   // Agregar un event listener para detectar cambios en el campo de fecha
   fechaInput.addEventListener("change", verificarFecha);
   fechaInput.addEventListener("change", function () {
-    datetimeSelect.textContent = fechaInput.value;
+    datetimeSelect.textContent = new Date(fechaInput.value).toLocaleString();
   });
   barberSelect.addEventListener("change", function () {
     barberParagraphSelect.textContent =
