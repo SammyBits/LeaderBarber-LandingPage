@@ -5,7 +5,7 @@ import { getBarbers } from "../../../services/BarbersServices";
 const { clientEmail, uuid } = Astro.params;
 const appointments = await getAppointmentsByClient(clientEmail as string);
 const appointment = appointments?.find(
-  (appointment) => appointment.clientId === clientEmail
+  (appointment) => appointment.clientEmail === clientEmail
 );
 const barbers = await getBarbers();
 const barberFilter = barbers?.find(

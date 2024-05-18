@@ -2,7 +2,7 @@ export type Appointments = {
   uuid?: string;
   dateTime: Date;
   service: string;
-  clientId: string;
+  clientEmail: string;
   barberUUID: string;
   status: Status;
   notes?: string;

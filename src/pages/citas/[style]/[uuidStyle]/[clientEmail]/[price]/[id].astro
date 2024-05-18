@@ -6,48 +6,61 @@ import {
   Status,
   type Appointments,
 } from "../../../../../../types/services/Appointments";
-const { style, uuidStyle, clientId, id, price } = Astro.params;
+import { sendEmailHtml } from "../../../../../../services/EmailServices";
+const { style, uuidStyle, clientEmail, price } = Astro.params;
 
 const nameStyle = style?.replace(/-/g, " ");
 const barbers: Barbers[] = (await getBarbers()) ?? [];
 const barberOptions = barbers.filter((barber: Barbers) => barber.available);
-
-if (Astro.request.method == "POST") {
+if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
     const price = data.get("price") as string;
     const services = data.get("services") as string;
-    const clientId = data.get("clientId") as string;
     const dateTime = data.get("date-time") as string;
     const barber = data.get("barber") as string;
+
     const appointment: Appointments = {
-      price: price,
+      price,
       service: services,
-      clientId: clientId,
+      clientEmail: clientEmail ?? "",
       dateTime: new Date(dateTime),
       barberUUID: barber,
       status: Status.IDLE,
     };
-    const response = await createAppointment(appointment);
-    console.log(response);
-    if (response) {
-      Astro.cookies.set(
-        "appointment",
-        JSON.stringify({
-          appointment: true,
-        }),
-        {
-          path: "/",
-          httpOnly: true,
-          maxAge: 2, // Establecer maxAge en segundos
-        }
-      );
 
-      return Astro.redirect("/");
-    }
+    const response = await createAppointment(appointment);
+    if (response) {
+    setAppointmentCookie();
+    const emailPromise = sendEmailHtml(clientEmail ?? "", "Cita agendada", emailContent());
+    // Show a loading indicator
+    await Promise.all([emailPromise]); // Wait for email sending to finish
+    // Hide the loading indicator, show success message
+    return Astro.redirect("/");
+}
   } catch (error) {
-    console.error(error);
+    handleError(error);
   }
+}
+
+function setAppointmentCookie() {
+  Astro.cookies.set("appointment", JSON.stringify({ appointment: true }), {
+    path: "/",
+    httpOnly: true,
+    maxAge: 2, // Establecer maxAge en segundos
+  });
+}
+
+function emailContent() {
+  return `
+    <p>Se ha agendado una cita</p>
+    <p>Recuerda llegar 10 minutos antes de la hora de la cita</p>
+    <p>¡Te esperamos!</p>
+  `;
+}
+
+function handleError(error: any) {
+  console.error("Error al procesar la solicitud:", error);
 }
 ---
 
@@ -80,7 +93,7 @@ if (Astro.request.method == "POST") {
           <form class="space-y-4" method="POST">
             <input type="hidden" name="price" value={price} />
             <input type="hidden" name="services" value={uuidStyle} />
-            <input type="hidden" name="clientId" value={clientId} />
+            <input type="hidden" name="clientEmail" value={clientEmail} />
             <div>
               <label
                 for="date-time"
@@ -153,7 +166,6 @@ if (Astro.request.method == "POST") {
   import { createAppointment } from "../../../../../../services/AppointmentsServices";
   import { $ } from "../../../../../../utils/BaseSettings";
   // Obtener el elemento del campo de fecha
-  const confirmButton = $("#confirm-button") as HTMLButtonElement;
   const fechaInput = $("#date-time") as HTMLInputElement;
   const barberSelect = $("#barber") as HTMLSelectElement;
   const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
@@ -179,6 +191,7 @@ if (Astro.request.method == "POST") {
     datetimeSelect.textContent = fechaInput.value;
   });
   barberSelect.addEventListener("change", function () {
-    barberParagraphSelect.textContent = barberSelect.value;
+    barberParagraphSelect.textContent =
+      barberSelect.options[barberSelect.selectedIndex].text;
   });
 </script>
