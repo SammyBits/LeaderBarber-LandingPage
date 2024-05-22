@@ -17,7 +17,7 @@ export const getAppointmentsByClient = async (
 ): Promise<Appointments[] | null> => {
   try {
     const response = await fetch(
-      `${BASEAPI_URL}/v1/appointments/${clientEmail}`,
+      `${BASEAPI_URL}/v1/appointments/client/${clientEmail}`,
     );
     const { message, result } = await response.json();
     if (response.ok) {
