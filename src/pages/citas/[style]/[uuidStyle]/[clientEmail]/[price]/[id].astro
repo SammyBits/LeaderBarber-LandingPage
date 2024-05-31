@@ -22,7 +22,8 @@ if (Astro.request.method === "POST") {
     const data = await Astro.request.formData();
     const price = data.get("price") as string;
     const services = data.get("services") as string;
-    const dateTime = data.get("date-time") as string;
+    const dateTime = data.get("date") as string;
+    console.log(dateTime)
     const barber = data.get("barber") as string;
 
     const appointment: Appointments = {
@@ -99,29 +100,13 @@ function handleError(error: any) {
         </div>
 
         <div class="">
-          <form class="space-y-4" method="POST">
+          <form class="space-y-2" method="POST">
             <input type="hidden" name="price" value={price} />
             <input type="hidden" name="services" value={uuidStyle} />
             <input type="hidden" name="clientEmail" value={clientEmail} />
             <div>
               <label
-                for="date-time"
-                class="block text-sm font-medium text-gray-700"
-              >
-                Fecha y hora
-              </label>
-              <h1 id='errorDate' class="transition-opacity duration-300 ease-in-out"></h1>
-              <input
-                type="datetime-local"
-                id="date-time"
-                name="date-time"
-                required
-                class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              />
-            </div>
-            <div>
-              <label
-                for="date-time"
+                for="barber"
                 class="block text-sm font-medium text-gray-700"
               >
                 Selecciona el barbero
@@ -144,6 +129,25 @@ function handleError(error: any) {
                 }
               </select>
             </div>
+            <div class="space-y-2">
+              <h1
+                id="errorDate"
+                class="transition-opacity duration-300 ease-in-out"
+              >
+              </h1>
+              <label for="date" class="block text-sm font-medium text-gray-700">
+                Fecha
+              </label>
+              <input
+                id="date"
+                name="date"
+                required
+                disabled
+                placeholder="Selecciona la fecha y hora de tu cita"
+                class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+            </div>
+
             <button
               class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-800 text-white hover:bg-gray-600 h-10 px-4 py-2 w-full"
               id="confirm-button"
@@ -168,46 +172,51 @@ function handleError(error: any) {
           </div>
         </div>
       </div>
-    </div> 
+    </div>
   </section>
 </PlainLayout>
 
 <script>
-  import { createAppointment } from "../../../../../../services/AppointmentsServices";
+  import flatpickr from "flatpickr";
+  import {
+    createAppointment,
+    getAppointmentByBarber,
+  } from "../../../../../../services/AppointmentsServices";
+  import { getAppointments } from "../../../../../../services/AppointmentsServices";
   import { $ } from "../../../../../../utils/BaseSettings";
   // Obtener el elemento del campo de fecha
-  const fechaInput = $("#date-time") as HTMLInputElement;
-  const errorDate = $("#errorDate") as HTMLHeadingElement;
+  const dateInput = $("#date") as HTMLInputElement;
   const barberSelect = $("#barber") as HTMLSelectElement;
   const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
   const barberParagraphSelect = $("#barber-select") as HTMLParagraphElement;
-  const price = $("#price") as HTMLParagraphElement;
-  const nameStyle = $("nameStyle") as HTMLParagraphElement;
 
-  // Función para verificar si la fecha seleccionada es un sábado o domingo
-  function verificarFecha() {
-    var selectedDate = new Date(fechaInput.value);
-    var dayOfWeek = selectedDate.getDay(); // 0 para domingo, 6 para sábado
-
-    // Si es sábado (6) o domingo (0), mostrar un mensaje de error y restablecer el valor del campo de fecha
-    if (dayOfWeek === 6 || dayOfWeek === 0) {
-      errorDate.innerHTML = "No se pueden agendar citas los fines de semana";
-      fechaInput.value = "";
-      setTimeout(() => {
-        errorDate.innerHTML = "";
-      }, 2000);
-    } else {
-      errorDate.innerHTML = "";
-    }
-  }
-
-  // Agregar un event listener para detectar cambios en el campo de fecha
-  fechaInput.addEventListener("change", verificarFecha);
-  fechaInput.addEventListener("change", function () {
-    datetimeSelect.textContent = new Date(fechaInput.value).toLocaleString();
-  });
-  barberSelect.addEventListener("change", function () {
+  barberSelect.addEventListener("change", async function () {
     barberParagraphSelect.textContent =
       barberSelect.options[barberSelect.selectedIndex].text;
+    dateInput.disabled = false;
+    const appointment = await getAppointmentByBarber(barberSelect.value);
+    flatpickr(dateInput, {
+      enableTime: true,
+      dateFormat: "Y-m-dTH:i",
+      disable: appointment?.map((appointment) => {
+        // Parsear manualmente la cadena de fecha
+        const parts = appointment.datetime.split(" ");
+        const dateParts = parts[0].split("/");
+        const timeParts = parts[1].split(":");
+        const year = parseInt(dateParts[2], 10);
+        const month = parseInt(dateParts[1], 10) - 1; // Los meses en JavaScript comienzan desde 0
+        const day = parseInt(dateParts[0], 10);
+        const hours = parseInt(timeParts[0], 10);
+        const minutes = parseInt(timeParts[1], 10);
+        // Crear el objeto de fecha
+        const date = new Date(year, month, day, hours, minutes);
+        return date;
+      }),
+      minDate: "today",
+    });
+  });
+
+  dateInput.addEventListener("change", function () {
+    datetimeSelect.textContent = dateInput.value;
   });
 </script>

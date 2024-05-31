@@ -12,6 +12,26 @@ export const getAppointments = async () => {
   }
 };
 
+export const getAppointmentByBarber = async (
+  barberUUID: string,
+): Promise<Appointments[] | null> => {
+  try {
+    const response = await fetch(
+      `${BASEAPI_URL}/v1/appointments/barber/${barberUUID}`,
+    );
+    const { message, result } = (await response.json()) as {
+      message: string;
+      result: Appointments[];
+    };
+    if (response.ok) {
+      return result;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return null;
+};
+
 export const getAppointmentsByClient = async (
   clientEmail: string,
 ): Promise<Appointments[] | null> => {
