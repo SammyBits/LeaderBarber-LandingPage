@@ -13,23 +13,34 @@ import {
 } from "../../services/auth/AuthServices";
 import { sendEmailHtml } from "../../services/EmailServices";
 import { getAppointmentsByClient } from "../../services/AppointmentsServices";
+import type { Session } from "@auth/core/types";
 
+// Función principal que maneja el inicio de sesión del cliente Google
 const session = await getSession(Astro.request);
-const clientGoogle: ClientGoogle = {
-  id: session?.user?.id,
-  name: session?.user?.name,
-  email: session?.user?.email,
-  image: session?.user?.image,
-};
 
-const isExist = await isClientGoogle(clientGoogle.email as string);
+async function handleClientGoogleLogin() {
+  try {
+    const clientGoogle: ClientGoogle = {
+      id: session?.user?.id,
+      name: session?.user?.name,
+      email: session?.user?.email,
+      image: session?.user?.image,
+    };
 
-if (session && !isExist) {
-  registerClientGoogleIfNotExists(clientGoogle);
-  sendEmailHtml(
-    clientGoogle.email as string,
-    "Haz iniciado sesión en LeaderBarber",
-    `<!doctype html>
+    const isExist = await isClientGoogle(clientGoogle.email as string);
+
+    if (session && !isExist) {
+      await registerClientGoogleIfNotExists(clientGoogle);
+      await sendWelcomeEmail(clientGoogle.email as string);
+    }
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// Función para enviar el correo de bienvenida
+async function sendWelcomeEmail(email: string) {
+  const emailContent = `<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -95,9 +106,22 @@ if (session && !isExist) {
       <a class="button" href="#">Ver nuestros servicios</a>
     </div>
   </body>
-</html>`
+</html>`;
+
+  await sendEmailHtml(
+    email,
+    "Haz iniciado sesión en LeaderBarber",
+    emailContent
   );
 }
+
+// Función para manejar errores
+function handleError(error: any) {
+  console.error("Error al procesar la solicitud:", error);
+}
+
+// Llamada a la función principal
+handleClientGoogleLogin();
 ---
 
 <nav

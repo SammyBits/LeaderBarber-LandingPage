@@ -27,13 +27,13 @@ const { title, description } = Astro.props;
     <main class="min-w-5xl">
       <slot />
     </main>
+    <style is:global>
+      html {
+        font-family: system-ui, sans-serif;
+        background: white;
+        background-size: 224px;
+        color-scheme: dark light;
+      }
+    </style>
   </body>
-  <style is:global>
-    html {
-      font-family: system-ui, sans-serif;
-      background: white;
-      background-size: 224px;
-      color-scheme: dark light;
-    }
-  </style>
 </html>

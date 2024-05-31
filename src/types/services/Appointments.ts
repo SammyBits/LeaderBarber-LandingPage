@@ -1,8 +1,8 @@
 export type Appointments = {
   uuid?: string;
-  dateTime: Date;
+  datetime: Date;
   service: string;
-  clientId: string;
+  clientEmail: string;
   barberUUID: string;
   status: Status;
   notes?: string;
@@ -22,3 +22,4 @@ interface IHistory {
   date: Date;
   event: string;
 }
+

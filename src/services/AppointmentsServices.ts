@@ -1,9 +1,9 @@
 import { BASEAPI_URL } from "../utils/BaseSettings";
 import { type Appointments } from "../types/services/Appointments";
-export const getAppointments = async () => {
+export const getAppointments = async (): Promise<Appointments[] | undefined> => {
   try {
     const response = await fetch(`${BASEAPI_URL}/v1/appointments`);
-    const { message, result } = await response.json();
+    const { message, result } = await response.json() as { message: string, result: Appointments[] };
     if (response.ok) {
       return result;
     }
@@ -17,7 +17,7 @@ export const getAppointmentsByClient = async (
 ): Promise<Appointments[] | null> => {
   try {
     const response = await fetch(
-      `${BASEAPI_URL}/v1/appointments/${clientEmail}`,
+      `${BASEAPI_URL}/v1/appointments/client/${clientEmail}`,
     );
     const { message, result } = await response.json();
     if (response.ok) {
