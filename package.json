@@ -1,7 +1,7 @@
 {
   "name": "theleaderbarber-astro",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -23,6 +23,7 @@
     "astro": "^4.7.1",
     "auth-astro": "^4.1.1",
     "flatpickr": "^4.6.13",
+    "date-fns": "^3.6.0",
     "luxon": "^3.4.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
