@@ -13,8 +13,6 @@ const { style, uuidStyle, clientEmail, price } = Astro.params;
 // Data processing (consider moving to a separate function for clarity)
 const barbers = (await getBarbers()) ?? [];
 const nameStyle = style?.replace(/-/g, " ");
-const error = Astro.cookies.has("error");
-
 // Handle errors centrally
 function handleError(error: any) {
   console.error("Error al procesar la solicitud:", error);
