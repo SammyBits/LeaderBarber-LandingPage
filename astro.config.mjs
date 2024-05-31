@@ -14,7 +14,5 @@ export default defineConfig({
     defaultLocale: "en-US"
   },
   integrations: [tailwind(), auth(), react()],
-  adapter: node({
-    mode: "standalone"
-  })
+  adapter: vercel()
 });

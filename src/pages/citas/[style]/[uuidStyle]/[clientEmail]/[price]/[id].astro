@@ -10,26 +10,30 @@ import { sendEmailHtml } from "../../../../../../services/EmailServices";
 import ToastError from "../../../../../../components/Toast/ToastError.astro";
 const { style, uuidStyle, clientEmail, price } = Astro.params;
 
+// Data processing (consider moving to a separate function for clarity)
+const barbers = (await getBarbers()) ?? [];
 const nameStyle = style?.replace(/-/g, " ");
-const barbers: Barbers[] = (await getBarbers()) ?? [];
 const error = Astro.cookies.has("error");
-if (error) {
-  console.log("error en alta");
+
+// Handle errors centrally
+function handleError(error: any) {
+  console.error("Error al procesar la solicitud:", error);
+  // Optionally display an error message to the user
 }
-const barberOptions = barbers.filter((barber: Barbers) => barber.available);
-if (Astro.request.method === "POST") {
+
+// Appointment creation logic (consider moving to a separate function)
+async function createAndProcessAppointment(data: FormData) {
   try {
-    const data = await Astro.request.formData();
     const price = data.get("price") as string;
     const services = data.get("services") as string;
-    const dateTime = data.get("date-time") as string;
+    const dateTime = new Date(data.get("date-time") as string);
     const barber = data.get("barber") as string;
 
     const appointment: Appointments = {
       price,
       service: services,
       clientEmail: clientEmail ?? "",
-      dateTime: new Date(dateTime),
+      dateTime,
       barberUUID: barber,
       status: Status.IDLE,
     };
@@ -42,9 +46,7 @@ if (Astro.request.method === "POST") {
         "Cita agendada",
         emailContent()
       );
-      // Show a loading indicator
-      await Promise.all([emailPromise]); // Wait for email sending to finish
-      // Hide the loading indicator, show success message
+      await Promise.all([emailPromise]);
       return Astro.redirect("/");
     }
   } catch (error) {
@@ -68,8 +70,9 @@ function emailContent() {
   `;
 }
 
-function handleError(error: any) {
-  console.error("Error al procesar la solicitud:", error);
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  await createAndProcessAppointment(data);
 }
 ---
 
@@ -108,22 +111,6 @@ function handleError(error: any) {
                 for="date-time"
                 class="block text-sm font-medium text-gray-700"
               >
-                Fecha y hora
-              </label>
-              <h1 id='errorDate' class="transition-opacity duration-300 ease-in-out"></h1>
-              <input
-                type="datetime-local"
-                id="date-time"
-                name="date-time"
-                required
-                class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              />
-            </div>
-            <div>
-              <label
-                for="date-time"
-                class="block text-sm font-medium text-gray-700"
-              >
                 Selecciona el barbero
               </label>
               <select
@@ -136,7 +123,7 @@ function handleError(error: any) {
                   Selecciona un barbero
                 </option>
                 {
-                  barberOptions.map((barber: Barbers) => (
+                  barbers.map((barber: Barbers) => (
                     <option value={barber.uuid!}>
                       {barber.firstName + " " + barber.lastName}
                     </option>
@@ -144,6 +131,27 @@ function handleError(error: any) {
                 }
               </select>
             </div>
+            <div>
+              <label
+                for="date-time"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Fecha y hora
+              </label>
+              <h1
+                id="errorDate"
+                class="transition-opacity duration-300 ease-in-out"
+              >
+              </h1>
+              <input
+                type="datetime-local"
+                id="date-time"
+                name="date-time"
+                required
+                class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+            </div>
+
             <button
               class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-800 text-white hover:bg-gray-600 h-10 px-4 py-2 w-full"
               id="confirm-button"
@@ -168,11 +176,12 @@ function handleError(error: any) {
           </div>
         </div>
       </div>
-    </div> 
+    </div>
   </section>
 </PlainLayout>
 
 <script>
+  import { isWeekend, parse } from "date-fns";
   import { createAppointment } from "../../../../../../services/AppointmentsServices";
   import { $ } from "../../../../../../utils/BaseSettings";
   // Obtener el elemento del campo de fecha
@@ -181,23 +190,23 @@ function handleError(error: any) {
   const barberSelect = $("#barber") as HTMLSelectElement;
   const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
   const barberParagraphSelect = $("#barber-select") as HTMLParagraphElement;
-  const price = $("#price") as HTMLParagraphElement;
-  const nameStyle = $("nameStyle") as HTMLParagraphElement;
 
   // Función para verificar si la fecha seleccionada es un sábado o domingo
   function verificarFecha() {
-    var selectedDate = new Date(fechaInput.value);
-    var dayOfWeek = selectedDate.getDay(); // 0 para domingo, 6 para sábado
-
-    // Si es sábado (6) o domingo (0), mostrar un mensaje de error y restablecer el valor del campo de fecha
-    if (dayOfWeek === 6 || dayOfWeek === 0) {
-      errorDate.innerHTML = "No se pueden agendar citas los fines de semana";
+    const selectedDate = parse(
+      fechaInput.value,
+      "yyyy-MM-dd'T'HH:mm",
+      new Date()
+    );
+    if (isWeekend(selectedDate)) {
+      errorDate.textContent = "No se pueden agendar citas los fines de semana";
       fechaInput.value = "";
       setTimeout(() => {
-        errorDate.innerHTML = "";
+        errorDate.textContent = "";
       }, 2000);
     } else {
-      errorDate.innerHTML = "";
+      errorDate.textContent = "";
+      // Update state or reactive variable with the filtered date
     }
   }
 
