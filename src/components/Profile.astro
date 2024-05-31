@@ -1,0 +1,21 @@
+---
+import { SignOut } from "auth-astro/components";
+import { getSession } from "auth-astro/server";
+const session = await getSession(Astro.request);
+---
+
+<div class="flex items-center space-x-4">
+  <button>
+    <SignOut class="flex items-center justify-center">
+      <div>
+        <img
+          src={session?.user?.image}
+          alt="profile"
+          id="profile"
+          class="w-10 h-10 rounded-full cursor-pointer hover:outline hover:rounded-full hover:outline-2 hover:animate-pulse"
+        />
+      </div>
+      <div class="ml-2">SignOut</div>
+    </SignOut>
+  </button>
+</div>

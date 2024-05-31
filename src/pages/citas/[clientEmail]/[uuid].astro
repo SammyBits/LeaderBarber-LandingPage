@@ -22,7 +22,7 @@ const formatDate = (date: DateTime | Date) => {
   if (date instanceof Date) {
     return date.toLocaleString('es-ES', options);
   } else {
-    const dateObj = new Date(date as string);
+    const dateObj = new Date(date as unknown as string);
     return dateObj.toLocaleString('es-ES', options);
   }
 };

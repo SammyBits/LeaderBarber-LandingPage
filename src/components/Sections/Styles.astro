@@ -1,0 +1,73 @@
+---
+import Section from "../Section.astro";
+import { getSession } from "auth-astro/server";
+import { v4 as uuidv4 } from "uuid";
+import { getStyles } from "../../services/StylesServices";
+const id = uuidv4();
+const session = await getSession(Astro.request);
+
+const result = await getStyles();
+const haircutServices = result as StylesServices[];
+---
+
+<Section id="Estilos" styles="pb-0 mb-24 lg:px-24 py-0 md:py-0 lg:py-0">
+  <div class="container mx-auto">
+    <div class="flex flex-col text-left text-balance py-14">
+      <h2
+        class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-4xl/none text-[#101829]"
+      >
+        Nuestros Estilos
+      </h2>
+      <p class="max-w-md text-[#101829] md:text-xl">
+        Descubre los estilos de corte de pelo y barba que ofrecemos. ¡Elige el
+        que mejor se adapte a ti!
+      </p>
+    </div>
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
+    >
+      {
+        haircutServices.map((style) => (
+          <div class="bg-[#101829] rounded-lg shadow-lg shadow-gray-700 overflow-hidden h-full flex flex-col m-auto">
+            <img
+              src={`/assets/imgs/styles/${style.image!}`}
+              loading="lazy"
+              alt={style.title}
+              class="w-full h-60 object-cover"
+            />
+            <div class="py-6 px-14 ">
+              <h3 class="text-xl font-bold text-white text-left">
+                {style.name}
+              </h3>
+              <div class="flex items-center mt-2">
+                <span class="text-white font-bold text-sm">{style.price}</span>
+                <span class="text-white text-sm mx-2">|</span>
+                <span class="text-white text-sm capitalize">
+                  {style.duration}
+                </span>
+              </div>
+              <p class="text-gray-300 m-auto text-pretty ">
+                {style.description}
+              </p>
+
+              <div class="flex m-auto align-bottom justify-items-center mt-6">
+                {session ? (
+                  <a
+                    href={`/citas/${style.slug}/${style.uuid}/${session.user?.email!}/${style.price}/${uuidv4()}`}
+                    class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3  text-center hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 "
+                  >
+                    Reservar
+                  </a>
+                ) : (
+                  <button class="bg-[#F5C24C] w-full text-black font-bold px-6 py-2.5 rounded-lg mt-3  text-center hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105 ">
+                    <a href="#header">Accede para reservar</a>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Section>

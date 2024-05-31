@@ -1,0 +1,222 @@
+---
+import PlainLayout from "../../../../../../layouts/PlainLayout.astro";
+import { getBarbers } from "../../../../../../services/BarbersServices";
+import { createAppointment } from "../../../../../../services/AppointmentsServices";
+import {
+  Status,
+  type Appointments,
+} from "../../../../../../types/services/Appointments";
+import { sendEmailHtml } from "../../../../../../services/EmailServices";
+import ToastError from "../../../../../../components/Toast/ToastError.astro";
+const { style, uuidStyle, clientEmail, price } = Astro.params;
+
+// Data processing (consider moving to a separate function for clarity)
+const barbers = (await getBarbers()) ?? [];
+const nameStyle = style?.replace(/-/g, " ");
+const error = Astro.cookies.has("error");
+
+// Handle errors centrally
+function handleError(error: any) {
+  console.error("Error al procesar la solicitud:", error);
+  // Optionally display an error message to the user
+}
+
+// Appointment creation logic (consider moving to a separate function)
+async function createAndProcessAppointment(data: FormData) {
+  try {
+    const price = data.get("price") as string;
+    const services = data.get("services") as string;
+    const dateTime = new Date(data.get("date-time") as string);
+    const barber = data.get("barber") as string;
+
+    const appointment: Appointments = {
+      price,
+      service: services,
+      clientEmail: clientEmail ?? "",
+      datetime: dateTime,
+      barberUUID: barber,
+      status: Status.IDLE,
+    };
+
+    const response = await createAppointment(appointment);
+    if (response) {
+      setAppointmentCookie();
+      const emailPromise = sendEmailHtml(
+        clientEmail ?? "",
+        "Cita agendada",
+        emailContent()
+      );
+      await Promise.all([emailPromise]);
+      return Astro.redirect("/");
+    }
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+function setAppointmentCookie() {
+  Astro.cookies.set("appointment", JSON.stringify({ appointment: true }), {
+    path: "/",
+    httpOnly: true,
+    maxAge: 2, // Establecer maxAge en segundos
+  });
+}
+
+function emailContent() {
+  return `
+    <p>Se ha agendado una cita</p>
+    <p>Recuerda llegar 10 minutos antes de la hora de la cita</p>
+    <p>¡Te esperamos!</p>
+  `;
+}
+
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  await createAndProcessAppointment(data);
+}
+---
+
+<PlainLayout
+  title="Reserva tu cita"
+  description="Agenda tu cita con el barbero de tu confianza"
+>
+  <section class="w-full flex min-h-screen">
+    <div class="container flex flex-col m-auto px-4 md:px-6">
+      <div class="grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
+        <div class="space-y-4">
+          <div
+            class="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+          >
+            Reserva tu cita
+          </div>
+          <h2
+            class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl"
+          >
+            Agenda tu cita con el barbero de tu confianza
+          </h2>
+          <p class="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+            Elige la fecha y hora que mejor se adapte a tu agenda, y selecciona
+            al barbero que más te guste. ¡Confirma tu cita y disfruta de un
+            excelente servicio!
+          </p>
+        </div>
+
+        <div class="">
+          <form class="space-y-4" method="POST">
+            <input type="hidden" name="price" value={price} />
+            <input type="hidden" name="services" value={uuidStyle} />
+            <input type="hidden" name="clientEmail" value={clientEmail} />
+            <div>
+              <label
+                for="date-time"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Selecciona el barbero
+              </label>
+              <select
+                id="barber"
+                name="barber"
+                required
+                class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <option value="" disabled selected>
+                  Selecciona un barbero
+                </option>
+                {
+                  barbers.map((barber: Barbers) => (
+                    <option value={barber.uuid!}>
+                      {barber.firstName + " " + barber.lastName}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+            <div>
+              <label
+                for="date-time"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Fecha y hora
+              </label>
+              <h1
+                id="errorDate"
+                class="transition-opacity duration-300 ease-in-out"
+              >
+              </h1>
+              <input
+                type="datetime-local"
+                id="date-time"
+                name="date-time"
+                required
+                class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+            </div>
+
+            <button
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-800 text-white hover:bg-gray-600 h-10 px-4 py-2 w-full"
+              id="confirm-button"
+              type="submit"
+            >
+              Confirmar cita
+            </button>
+          </form>
+
+          <div class="border-t border-gray-600 mt-2">
+            <h2 class="text-lg font-medium">Cita confirmada</h2>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="text-gray-500 dark:text-gray-400">Fecha y hora:</div>
+              <p id="datetime-select">No definida</p>
+              <div class="text-gray-500 dark:text-gray-400">Barbero:</div>
+              <p id="barber-select">No definido</p>
+              <div class="text-gray-500 dark:text-gray-400">Estilo:</div>
+              <p class="capitalize" id="nameStyle">{nameStyle}</p>
+              <div class="text-gray-500 dark:text-gray-400">Precio:</div>
+              <p class="capitalize" id="price">{price}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</PlainLayout>
+
+<script>
+  import { isWeekend, parse } from "date-fns";
+  import { createAppointment } from "../../../../../../services/AppointmentsServices";
+  import { $ } from "../../../../../../utils/BaseSettings";
+  // Obtener el elemento del campo de fecha
+  const fechaInput = $("#date-time") as HTMLInputElement;
+  const errorDate = $("#errorDate") as HTMLHeadingElement;
+  const barberSelect = $("#barber") as HTMLSelectElement;
+  const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
+  const barberParagraphSelect = $("#barber-select") as HTMLParagraphElement;
+
+  // Función para verificar si la fecha seleccionada es un sábado o domingo
+  function verificarFecha() {
+    const selectedDate = parse(
+      fechaInput.value,
+      "yyyy-MM-dd'T'HH:mm",
+      new Date()
+    );
+    if (isWeekend(selectedDate)) {
+      errorDate.textContent = "No se pueden agendar citas los fines de semana";
+      fechaInput.value = "";
+      setTimeout(() => {
+        errorDate.textContent = "";
+      }, 2000);
+    } else {
+      errorDate.textContent = "";
+      // Update state or reactive variable with the filtered date
+    }
+  }
+
+  // Agregar un event listener para detectar cambios en el campo de fecha
+  fechaInput.addEventListener("change", verificarFecha);
+  fechaInput.addEventListener("change", function () {
+    datetimeSelect.textContent = new Date(fechaInput.value).toLocaleString();
+  });
+  barberSelect.addEventListener("change", function () {
+    barberParagraphSelect.textContent =
+      barberSelect.options[barberSelect.selectedIndex].text;
+  });
+</script>

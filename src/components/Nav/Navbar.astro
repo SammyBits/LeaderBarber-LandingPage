@@ -1,0 +1,182 @@
+---
+import Nav from "./Nav.astro";
+import { SignIn, SignOut } from "auth-astro/components";
+import Profile from "../Profile.astro";
+import { v4 as uuidv4 } from "uuid";
+
+import { getSession } from "auth-astro/server";
+const uuid = uuidv4();
+
+import {
+  registerClientGoogleIfNotExists,
+  isClientGoogle,
+} from "../../services/auth/AuthServices";
+import { sendEmailHtml } from "../../services/EmailServices";
+import { getAppointmentsByClient } from "../../services/AppointmentsServices";
+import type { Session } from "@auth/core/types";
+
+// Función principal que maneja el inicio de sesión del cliente Google
+const session = await getSession(Astro.request);
+
+async function handleClientGoogleLogin() {
+  try {
+    const clientGoogle: ClientGoogle = {
+      id: session?.user?.id,
+      name: session?.user?.name,
+      email: session?.user?.email,
+      image: session?.user?.image,
+    };
+
+    const isExist = await isClientGoogle(clientGoogle.email as string);
+
+    if (session && !isExist) {
+      await registerClientGoogleIfNotExists(clientGoogle);
+      await sendWelcomeEmail(clientGoogle.email as string);
+    }
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// Función para enviar el correo de bienvenida
+async function sendWelcomeEmail(email: string) {
+  const emailContent = `<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>¡Bienvenido a LeaderBarber!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333333;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      p {
+        color: #666666;
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+      .emoji {
+        font-size: 32px;
+        margin-bottom: 20px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>¡Bienvenido a LeaderBarber! 🎉</h1>
+      <p>
+        Gracias por registrarte en nuestra plataforma, esperamos que disfrutes
+        de nuestros servicios.
+      </p>
+      <p>
+        Si no te has registrado con esta cuenta, por favor contáctanos a
+        <a href="mailto:theleaderbarber@gmail.com"
+          >TheLeaderBarber@gmail.com</a
+        >
+      </p>
+      <a class="button" href="#">Ver nuestros servicios</a>
+    </div>
+  </body>
+</html>`;
+
+  await sendEmailHtml(
+    email,
+    "Haz iniciado sesión en LeaderBarber",
+    emailContent
+  );
+}
+
+// Función para manejar errores
+function handleError(error: any) {
+  console.error("Error al procesar la solicitud:", error);
+}
+
+// Llamada a la función principal
+handleClientGoogleLogin();
+---
+
+<nav
+  class="text-white flex justify-center items-center space-x-4 md:justify-end"
+>
+  <Nav
+    title="Estilos"
+    href="#Estilos"
+    styles="hover:underline underline-offset-8"
+  />
+  <Nav
+    title="Barberos"
+    href="#Barberos"
+    styles="hover:underline underline-offset-8"
+  />
+  {
+    !session ? (
+      <SignIn
+        provider={"google"}
+        class="transition  duration-300 ease-in-out transform hover:scale-105 inline-flex h-9 items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-black"
+      >
+        <svg
+          width="1em"
+          height="1em"
+          viewBox="0 0 256 262"
+          class="w-5 h-5 mr-2"
+        >
+          <path
+            fill="#4285f4"
+            d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622l38.755 30.023l2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"
+          />
+          <path
+            fill="#34a853"
+            d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055c-34.523 0-63.824-22.773-74.269-54.25l-1.531.13l-40.298 31.187l-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"
+          />
+          <path
+            fill="#fbbc05"
+            d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82c0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602z"
+          />
+          <path
+            fill="#eb4335"
+            d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
+          />
+        </svg>
+        Ingresar con Google
+      </SignIn>
+    ) : (
+      <div class="flex items-center space-x-4">
+        <Nav
+          title="Tus Citas"
+          href={`/citas/${session.user?.email}/${uuid}`}
+          styles="hover:underline underline-offset-8"
+        />
+        <Profile />
+      </div>
+    )
+  }
+</nav>

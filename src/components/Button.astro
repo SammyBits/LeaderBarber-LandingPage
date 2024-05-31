@@ -2,13 +2,21 @@
 interface Props {
   title: string;
   redirect?: string;
+  type?: "button" | "submit" | "reset" | null | undefined;
+  styles?: string;
+  onClick?: string;
 }
+import { getSession } from "auth-astro/server";
+const session = await getSession(Astro.request);
 
-const { title, redirect } = Astro.props;
+const { title, redirect, styles, type, onClick } = Astro.props;
 ---
 
 <button
-  class="rounded-md bg-blue-700 w-full py-2 text-sm font-medium text-gray-50 hover:bg-blue-600"
+  class:list={["rounded-md py-2 font-medium w-full", styles]}
+  type={type || "button"}
+  onclick={onClick}
+  ;
 >
   <a href={redirect}>{title}</a>
 </button>

@@ -1,0 +1,65 @@
+---
+import Section from "../Section.astro";
+import { getSession } from "auth-astro/server";
+import { v4 as uuidv4 } from "uuid";
+import { getStyles } from "../../services/StylesServices";
+import PinIcon from "../Icons/PinIcon.astro";
+import PhoneIcon from "../Icons/PhoneIcon.astro";
+import ClockIcon from "../Icons/ClockIcon.astro"
+---
+
+<Section
+  id="Ubicacion"
+  styles="pb-0 md:px-10 lg:px-22 px-24 py-0 md:py-0 md:py-0 lg:py-0 bg-[#111827]"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <div class="m-auto space-y-4">
+      <div
+        class="inline-flex items-center rounded-lg bg-gray-600 px-3 py-1 text-md font-semibold justify-center"
+      >
+      📍 Ubicación
+      </div>
+      <div
+        class="inline-flex items-center rounded-lg bg-gray-600 px-3 py-1 text-md font-semibold justify-center"
+      >
+      📆 Horario
+      </div>
+      <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+        Visítanos en nuestro local
+      </h2>
+      <p class="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+        Estamos ubicados en el corazón de la ciudad, a solo unos pasos de las
+        principales atracciones. Ven y disfruta de nuestra cálida y acogedora
+        atmósfera.
+      </p>
+      <div class="grid gap-2">
+        <div class="flex items-center gap-2">
+          <PinIcon />
+          <p>Calle Principal 123, Ciudad</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <PhoneIcon />
+          <p>+1 (123) 456-7890</p>
+        </div>
+        <div class="flex items-center gap-2">
+         <ClockIcon />
+          </svg>
+          <p>Lun - Sáb: 9:00 AM - 7:00 PM</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex text-balance m-14">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235.15710841785227!2d-70.69524785923701!3d19.43340510432175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8eb1cfebabd1e389%3A0xea376ef805815dbe!2sJoshua%20BarberShop!5e0!3m2!1ses!2sdo!4v1715730700639!5m2!1ses!2sdo"
+        width="600"
+        height="450"
+        style="border:0;"
+        class="rounded-lg"
+        title="Ubicación de LeaderBarber"
+        allowfullscreen="true"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</Section>

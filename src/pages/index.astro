@@ -1,78 +1,22 @@
 ---
-import Button from "../components/Button.astro";
 import Section from "../components/Section.astro";
-import Card from "../components/Card.astro";
-import { Image } from 'astro:assets';
 import Layout from "../layouts/Layout.astro";
-import cortePelo from "../assets/imgs/corte-pelo.png";
-import barba from "../assets/imgs/barba.jpg";
-import cortePeloModerno from "../assets/imgs/corte-pelo-moderno.jpg";
-import cortePeloBarba from "../assets/imgs/corte-pelo-barba.jpg";
-import cortePeloBarbaDiseño from "../assets/imgs/corte-pelo-barba-diseño.jpg";
-import cortePeloBarbaModerno from "../assets/imgs/corte-pelo-barba-moderno.webp";
-
-interface HaircutService {
-  title: string;
-  price: string;
-  description: string;
-  image: ImageMetadata;
-  duration: string; // Duración estimada del servicio
+import Styles from "../components/Sections/Styles.astro";
+import Barbers from "../components/Sections/Barbers.astro";
+import ToastSuccess from "../components/Toast/ToastSuccess.astro";
+import Offers from "../components/Sections/Offers.astro";
+import Schedule from "../components/Sections/Schedule.astro";
+const appointment = Astro.cookies.has("appointment");
+if (appointment) {
+  console.log("appointment");
 }
-
-const haircutServices: HaircutService[] = [
-  {
-    title: "Corte de Pelo Clásico",
-    price: "RD$400",
-    description:
-      "¡Renueva tu estilo con un corte de pelo clásico! Nuestros estilistas expertos se asegurarán de que te veas y te sientas genial.",
-    image: cortePelo,
-    duration: "30 minutos",
-  },
-  {
-    title: "Barba Perfecta",
-    price: "RD$200",
-    description:
-      "Dale a tu barba el cuidado que se merece con nuestro corte de barba clásico. ¡Lucirás impecable y a la moda en poco tiempo!",
-    image: barba,
-    duration: "20 minutos",
-  },
-  {
-    title: "Estilo Moderno",
-    price: "RD$600",
-    description:
-      "¿Buscas un cambio audaz? Prueba nuestro corte de pelo moderno. Nuestros estilistas te ayudarán a destacar con un estilo fresco y contemporáneo.",
-    image: cortePeloModerno,
-    duration: "45 minutos",
-  },
-  {
-    title: "Combinación Clásica",
-    price: "RD$550",
-    description:
-      "Disfruta lo mejor de ambos mundos con nuestro combo de corte de pelo y barba clásicos. ¡Te sentirás renovado y listo para conquistar el mundo!",
-    image: cortePeloBarba,
-    duration: "50 minutos",
-  },
-  {
-    title: "Diseño Personalizado",
-    price: "RD$800",
-    description:
-      "Haz una declaración de estilo con nuestro corte de pelo y barba con diseño personalizado. ¡Deja que nuestros expertos creen una obra maestra única para ti!",
-    image: cortePeloBarbaDiseño,
-    duration: "60 minutos",
-  },
-  {
-    title: "Mimos Extra",
-    price: "RD$1000",
-    description:
-      "¡Date el lujo que te mereces con nuestro paquete de corte de pelo y barba de lujo! Disfruta de un servicio VIP que te dejará sintiéndote renovado y rejuvenecido.",
-    image: cortePeloBarbaModerno,
-    duration: "75 minutos",
-  },
-];
 ---
 
-<Layout title="LeaderBarber - Encuentra tu estilo de pelo" description="Reserva citas con los mejores barberos de LeaderBarber. Consulta sus estilos, precios y tiempos de espera.">
-  <section class="text-black py-60 md:py-24 lg:py-56 xl:py-72">
+<Layout
+  title="LeaderBarber - Encuentra tu estilo de pelo"
+  description="Reserva citas con los mejores barberos de LeaderBarber. Consulta sus estilos, precios y tiempos de espera."
+>
+  <Section id="hero" styles="text-white bg-gray-900 py-24 md:py-32">
     <div class="flex flex-col items-center space-y-2 text-center text-balance">
       <h1
         class="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-6xl/none"
@@ -80,49 +24,30 @@ const haircutServices: HaircutService[] = [
         ¡Encuentra tu estilo de pelo!
       </h1>
       <p
-        class="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400"
+        class="mx-auto max-w-[700px] text-gray-400 md:text-xl dark:text-gray-100"
       >
         Reserva citas con los mejores barberos de LeaderBarber. Consulta sus
         estilos, precios y tiempos de espera.
       </p>
 
       <div class="grid grid-cols-1 justify-items-center">
-        <button class="bg-black text-white px-6 py-2.5 rounded-lg mt-3">
-          <a href="#Estilos">Nuestros estilos</a>
+        <button
+          class="bg-[#F5C24C] text-black font-bold px-6 py-2.5 rounded-lg mt-3 hover:bg-[#F5C24C] hover:text-black transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          <a href="#Estilos">Explora nuestros estilos 👀</a>
         </button>
       </div>
     </div>
-  </section>
-
-  <Section id="Estilos">
-    <div class="container mx-auto">
-      <h2 class="text-3xl md:text-4xl font-bold text-center md:text-left md:m-5">
-        Explore nuestros estilos
-      </h2>
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 justify-center items-start"
-      >
-        {
-          haircutServices.map((card, index) => (
-            <div class="bg-white rounded-lg shadow-md overflow-hidden h-full m-5 md:m-5 lg:m-0">
-              <Image src={card.image} alt={card.title} class="w-full h-60 object-cover" />
-              <div class="py-6 px-14 ">
-                <h3 class="text-xl font-bold text-gray-900">{card.title}</h3>
-                <div class="flex justify-between items-center mt-2">
-                  <span class="text-gray-600 text-sm">{card.price}</span>
-                  <span class="text-gray-600 text-sm">{card.duration}</span>
-                </div>
-                <p class="text-gray-600 mt-2 text-pretty">{card.description}</p>
-                <div class="mt-4">
-                  <Button title="Reservar" redirect="/reservar" />
-                </div>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
   </Section>
+  {
+    appointment && (
+      <ToastSuccess
+        title="Cita reservada"
+        message="Tu cita ha sido reservada con éxito"
+      />
+    )
+  }
+  <Styles />
+  <Barbers client:load/>
+  <Schedule />
 </Layout>
-
-<script></script>

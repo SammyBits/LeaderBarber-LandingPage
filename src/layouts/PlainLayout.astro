@@ -1,9 +1,7 @@
 ---
 import { ViewTransitions } from "astro:transitions";
-import Header from "../components/Header.astro";
 
 interface Props {
-  //Typescript
   title: string;
   description: string;
 }
@@ -19,20 +17,18 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+
     <title>{title}</title>
     <ViewTransitions />
   </head>
   <body class="min-h-screen">
-    <Header />
     <main class="min-w-5xl">
       <slot />
     </main>
+
     <style is:global>
       html {
         font-family: system-ui, sans-serif;
-        background: white;
-        background-size: 224px;
-        color-scheme: dark light;
       }
     </style>
   </body>
