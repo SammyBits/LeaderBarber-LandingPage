@@ -1,0 +1,62 @@
+---
+import type { DateTime, DateTimeFormatOptions } from "luxon";
+import PlainLayout from "../../../layouts/PlainLayout.astro";
+import { getAppointmentsByClient } from "../../../services/AppointmentsServices";
+import { getBarbers } from "../../../services/BarbersServices";
+const { clientEmail, uuid } = Astro.params;
+const appointments = await getAppointmentsByClient(clientEmail as string);
+const appointment = appointments?.find(
+  (appointment) => appointment.clientEmail === clientEmail
+);
+
+const formatDate = (date: DateTime | Date) => {
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  };
+  
+  if (date instanceof Date) {
+    return date.toLocaleString('es-ES', options);
+  } else {
+    const dateObj = new Date(date as string);
+    return dateObj.toLocaleString('es-ES', options);
+  }
+};
+
+console.log(appointments);
+const barbers = await getBarbers();
+const barberFilter = barbers?.find(
+  (barber) => barber.uuid === appointment?.barberUUID
+);
+---
+
+<PlainLayout title="Tus citas" description="Tus citas con los barberos">
+  <div class="container mx-auto">
+    <h1 class="text-3xl font-bold text-gray-900 mt-8">Tus citas</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {
+        appointments?.map((appointment) => (
+          <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="p-4">
+              <h3 class="text-2xl font-semibold text-gray-800 capitalize">
+                {appointment.service}
+              </h3>
+              <span class="text-gray-600 text-sm">
+                {appointment.barberUUID}
+              </span>
+              <p class="text-gray-600 mt-2">{barberFilter?.description}</p>
+              <h1 class="text-gray-600 mt-2">
+                Fecha: {formatDate(appointment.datetime)}
+              </h1>
+              <h1 class="text-gray-600 mt-2">Precio: {appointment.price}</h1>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</PlainLayout>
