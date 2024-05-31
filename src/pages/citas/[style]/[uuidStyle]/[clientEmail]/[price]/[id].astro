@@ -33,7 +33,7 @@ async function createAndProcessAppointment(data: FormData) {
       price,
       service: services,
       clientEmail: clientEmail ?? "",
-      dateTime,
+      datetime: dateTime,
       barberUUID: barber,
       status: Status.IDLE,
     };
