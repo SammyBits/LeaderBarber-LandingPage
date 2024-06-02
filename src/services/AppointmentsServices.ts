@@ -1,5 +1,5 @@
 import { BASEAPI_URL } from "../utils/BaseSettings";
-import { type Appointments } from "../types/services/Appointments";
+import { type Appointments, type AppointmentsByClient } from "../types/services/Appointments";
 export const getAppointments = async (): Promise<Appointments[] | undefined> => {
   try {
     const response = await fetch(`${BASEAPI_URL}/v1/appointments`);
@@ -14,7 +14,7 @@ export const getAppointments = async (): Promise<Appointments[] | undefined> => 
 
 export const getAppointmentsByClient = async (
   clientEmail: string,
-): Promise<Appointments[] | null> => {
+): Promise<AppointmentsByClient[] | null> => {
   try {
     const response = await fetch(
       `${BASEAPI_URL}/v1/appointments/client/${clientEmail}`,
