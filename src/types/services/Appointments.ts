@@ -13,7 +13,7 @@ export type Appointments = {
 
 export type AppointmentsByClient = {
   uuid: string;
-  dateTime: Date;
+  dateTime: String;
   barberName: string;
   price: string;
   serviceName: string;

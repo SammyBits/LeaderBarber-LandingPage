@@ -171,15 +171,11 @@ if (Astro.request.method === "POST") {
                 class="transition-opacity duration-300 ease-in-out"
               >
               </h1>
-              <label for="date" class="block text-sm font-medium text-gray-700">
-                Fecha
-              </label>
               <input
                 id="time"
                 name="time"
                 required
-                disabled
-                placeholder="Selecciona la fecha y hora de tu cita"
+                placeholder="Selecciona la hora"
                 class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               />
             </div>
@@ -217,10 +213,11 @@ if (Astro.request.method === "POST") {
 <script>
   import { isWeekend, parse } from "date-fns";
   import flatpickr from "flatpickr";
-  import { createAppointment, getAppointments } from "../../../../../../services/AppointmentsServices";
+  import { createAppointment, getAppointmentByBarber, getAppointments } from "../../../../../../services/AppointmentsServices";
   import { $ } from "../../../../../../utils/BaseSettings";
+  document.addEventListener("DOMContentLoaded", async function () {
   // Obtener el elemento del campo de fecha
-  const fechaInput = $("#date") as HTMLInputElement;
+  const dateInput = $("#date") as HTMLInputElement;
   const timeInput = $("#time") as HTMLInputElement;
   const errorDate = $("#errorDate") as HTMLHeadingElement;
   const barberSelect = $("#barber") as HTMLSelectElement;
@@ -233,7 +230,45 @@ if (Astro.request.method === "POST") {
     "18:45:00", // Disable 6:45 PM
   ];
 
-  flatpickr(fechaInput, {
+
+
+  dateInput.addEventListener("change", function () {
+    // Solo quiero la fecha, no la hora
+    datetimeSelect.textContent = dateInput.value;
+  });
+  barberSelect.addEventListener("change", async function () {
+    barberParagraphSelect.textContent =
+      barberSelect.options[barberSelect.selectedIndex].text;
+    dateInput.disabled = false;
+    const appointment = await getAppointmentByBarber(barberSelect.value);
+    flatpickr(dateInput, {
+      enableTime: true,
+      dateFormat: "Y-m-dTH:i",
+      disable: appointment?.map((appointment) => {
+        // Parsear manualmente la cadena de fecha
+        const parts = appointment.dateTime.split(" ");
+        const dateParts = parts[0].split("/");
+        const timeParts = parts[1].split(":");
+        const year = parseInt(dateParts[2], 10);
+        const month = parseInt(dateParts[1], 10) - 1; // Los meses en JavaScript comienzan desde 0
+        const day = parseInt(dateParts[0], 10);
+        const hours = parseInt(timeParts[0], 10);
+        const minutes = parseInt(timeParts[1], 10);
+        // Crear el objeto de fecha
+        const date = new Date(year, month, day, hours, minutes);
+        return date;
+      }),
+      minDate: "today",
+    });
+  });
+
+  dateInput.addEventListener("change", function () {
+    datetimeSelect.textContent = dateInput.value;
+  });
+
+  
+    
+  flatpickr(dateInput, {
     enableTime: false,
     dateFormat: "Y-m-d",
     minDate: "today",
@@ -273,46 +308,5 @@ if (Astro.request.method === "POST") {
       }
     },
   });
-
-  // flatpickr("#time", {
-  //   enableTime: true,
-  //   noCalendar: true,
-  //   dateFormat: "h:i",
-  //   minTime: "16:00",
-  //   maxTime: "22:30",
-  // });
-
-  fechaInput.addEventListener("change", function () {
-    // Solo quiero la fecha, no la hora
-    datetimeSelect.textContent = fechaInput.value;
-  });
-  barberSelect.addEventListener("change", function () {
-    barberParagraphSelect.textContent =
-      barberSelect.options[barberSelect.selectedIndex].text;
-    dateInput.disabled = false;
-    const appointment = await getAppointmentByBarber(barberSelect.value);
-    flatpickr(dateInput, {
-      enableTime: true,
-      dateFormat: "Y-m-dTH:i",
-      disable: appointment?.map((appointment) => {
-        // Parsear manualmente la cadena de fecha
-        const parts = appointment.datetime.split(" ");
-        const dateParts = parts[0].split("/");
-        const timeParts = parts[1].split(":");
-        const year = parseInt(dateParts[2], 10);
-        const month = parseInt(dateParts[1], 10) - 1; // Los meses en JavaScript comienzan desde 0
-        const day = parseInt(dateParts[0], 10);
-        const hours = parseInt(timeParts[0], 10);
-        const minutes = parseInt(timeParts[1], 10);
-        // Crear el objeto de fecha
-        const date = new Date(year, month, day, hours, minutes);
-        return date;
-      }),
-      minDate: "today",
-    });
-  });
-
-  dateInput.addEventListener("change", function () {
-    datetimeSelect.textContent = dateInput.value;
   });
 </script>
