@@ -13,8 +13,6 @@ const { style, uuidStyle, clientEmail, price } = Astro.params;
 // Data processing (consider moving to a separate function for clarity)
 const barbers = (await getBarbers()) ?? [];
 const nameStyle = style?.replace(/-/g, " ");
-const error = Astro.cookies.has("error");
-
 // Handle errors centrally
 function handleError(error: any) {
   console.error("Error al procesar la solicitud:", error);
@@ -26,29 +24,31 @@ async function createAndProcessAppointment(data: FormData) {
   try {
     const price = data.get("price") as string;
     const services = data.get("services") as string;
-    const dateTime = data.get("date") as string;
-    console.log(dateTime)
+    const date = new Date(data.get("date") as string);
+    const time = data.get("time") as string;
+    const dateTime = new Date(date.setHours(parseInt(time.split(":")[0]), parseInt(time.split(":")[1])));
     const barber = data.get("barber") as string;
 
     const appointment: Appointments = {
       price,
       service: services,
       clientEmail: clientEmail ?? "",
-      datetime: dateTime,
+      dateTime: dateTime,
       barberUUID: barber,
       status: Status.IDLE,
     };
 
     const response = await createAppointment(appointment);
+
     if (response) {
       setAppointmentCookie();
-      const emailPromise = sendEmailHtml(
-        clientEmail ?? "",
-        "Cita agendada",
-        emailContent()
-      );
-      await Promise.all([emailPromise]);
-      return Astro.redirect("/");
+      // const emailPromise = sendEmailHtml(
+      //   clientEmail ?? "",
+      //   "Cita agendada",
+      //   emailContent()
+      // );
+      // await Promise.all([emailPromise]);
+      Astro.redirect("/");
     }
   } catch (error) {
     handleError(error);
@@ -74,6 +74,7 @@ function emailContent() {
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
   await createAndProcessAppointment(data);
+  return Astro.redirect("/");
 }
 ---
 
@@ -125,14 +126,46 @@ if (Astro.request.method === "POST") {
                 </option>
                 {
                   barbers.map((barber: Barbers) => (
-                    <option value={barber.uuid!}>
+                    <option value={barber.uuid}>
                       {barber.firstName + " " + barber.lastName}
                     </option>
                   ))
                 }
               </select>
             </div>
-            <div class="space-y-2">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Fecha
+              </label>
+              <h1
+                id="errorDate"
+                class="transition-opacity duration-300 ease-in-out"
+              >
+              </h1>
+              <div class="flatpickr">
+                <input
+                  id="date"
+                  name="date"
+                  required
+                  type="text"
+                  data-input
+                  class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                />
+
+                <a class="input-button" title="toggle" data-toggle>
+                  <i class="icon-calendar"></i>
+                </a>
+
+                <a class="input-button" title="clear" data-clear>
+                  <i class="icon-close"></i>
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Hora
+              </label>
               <h1
                 id="errorDate"
                 class="transition-opacity duration-300 ease-in-out"
@@ -142,8 +175,8 @@ if (Astro.request.method === "POST") {
                 Fecha
               </label>
               <input
-                id="date"
-                name="date"
+                id="time"
+                name="time"
                 required
                 disabled
                 placeholder="Selecciona la fecha y hora de tu cita"
@@ -163,8 +196,10 @@ if (Astro.request.method === "POST") {
           <div class="border-t border-gray-600 mt-2">
             <h2 class="text-lg font-medium">Cita confirmada</h2>
             <div class="grid grid-cols-2 gap-2">
-              <div class="text-gray-500 dark:text-gray-400">Fecha y hora:</div>
+              <div class="text-gray-500 dark:text-gray-400">Fecha:</div>
               <p id="datetime-select">No definida</p>
+              <div class="text-gray-500 dark:text-gray-400">Hora:</div>
+              <p id="time-select">No definida</p>
               <div class="text-gray-500 dark:text-gray-400">Barbero:</div>
               <p id="barber-select">No definido</p>
               <div class="text-gray-500 dark:text-gray-400">Estilo:</div>
@@ -180,20 +215,78 @@ if (Astro.request.method === "POST") {
 </PlainLayout>
 
 <script>
+  import { isWeekend, parse } from "date-fns";
   import flatpickr from "flatpickr";
-  import {
-    createAppointment,
-    getAppointmentByBarber,
-  } from "../../../../../../services/AppointmentsServices";
-  import { getAppointments } from "../../../../../../services/AppointmentsServices";
+  import { createAppointment, getAppointments } from "../../../../../../services/AppointmentsServices";
   import { $ } from "../../../../../../utils/BaseSettings";
   // Obtener el elemento del campo de fecha
-  const dateInput = $("#date") as HTMLInputElement;
+  const fechaInput = $("#date") as HTMLInputElement;
+  const timeInput = $("#time") as HTMLInputElement;
+  const errorDate = $("#errorDate") as HTMLHeadingElement;
   const barberSelect = $("#barber") as HTMLSelectElement;
   const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
   const barberParagraphSelect = $("#barber-select") as HTMLParagraphElement;
+  const getAppointmentsDate = await getAppointments();
+  const unavailableTimeSlots = [
+    "16:30", // Disable 4:30 PM
+    "17:15:00", // Disable 5:15 PM
+    "18:45:00", // Disable 6:45 PM
+  ];
 
-  barberSelect.addEventListener("change", async function () {
+  flatpickr(fechaInput, {
+    enableTime: false,
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    wrap: false,
+    disable: [
+      function (date) {
+        return date.getDay() === 0 || date.getDay() === 6;
+      },
+    ],
+  });
+
+  flatpickr(timeInput, {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: false,
+    // minTime: "16:00",
+    // maxTime: "22:30",
+    disable: [
+      function (time) {
+        const timeString = time.toLocaleTimeString(); // Convert time to string
+        return unavailableTimeSlots.includes(timeString); // Check if time is in disabled list
+      },
+    ],
+    // Cuando se cierre verifique si la hora seleccionada está deshabilitada
+    onClose: function (selectedDates, dateStr, instance) {
+      console.log(dateStr);
+      if (unavailableTimeSlots.includes(dateStr)) {
+        errorDate.textContent = "La hora seleccionada no está disponible";
+        console.log("La hora seleccionada no está disponible");
+        instance.clear();
+        setTimeout(() => {
+          errorDate.textContent = "";
+        }, 2000);
+      } else {
+        errorDate.textContent = "";
+      }
+    },
+  });
+
+  // flatpickr("#time", {
+  //   enableTime: true,
+  //   noCalendar: true,
+  //   dateFormat: "h:i",
+  //   minTime: "16:00",
+  //   maxTime: "22:30",
+  // });
+
+  fechaInput.addEventListener("change", function () {
+    // Solo quiero la fecha, no la hora
+    datetimeSelect.textContent = fechaInput.value;
+  });
+  barberSelect.addEventListener("change", function () {
     barberParagraphSelect.textContent =
       barberSelect.options[barberSelect.selectedIndex].text;
     dateInput.disabled = false;

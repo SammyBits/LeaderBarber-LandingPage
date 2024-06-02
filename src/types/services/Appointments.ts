@@ -1,6 +1,6 @@
 export type Appointments = {
   uuid?: string;
-  datetime: Date;
+  dateTime: Date;
   service: string;
   clientEmail: string;
   barberUUID: string;
@@ -9,6 +9,14 @@ export type Appointments = {
   price: string;
   history?: IHistory;
   createdAt?: Date;
+};
+
+export type AppointmentsByClient = {
+  uuid: string;
+  dateTime: Date;
+  barberName: string;
+  price: string;
+  serviceName: string;
 };
 
 export enum Status {
