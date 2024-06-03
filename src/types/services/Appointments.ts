@@ -11,7 +11,7 @@ export type Appointments = {
   createdAt?: Date;
 };
 
-export type AppointmentsByClient = {
+export interface AppointmentsByClient {
   uuid: string;
   dateTime: String;
   barberName: string;

@@ -8,6 +8,7 @@ import {
 } from "../../../../../../types/services/Appointments";
 import { sendEmailHtml } from "../../../../../../services/EmailServices";
 import ToastError from "../../../../../../components/Toast/ToastError.astro";
+import { parse } from "date-fns";
 const { style, uuidStyle, clientEmail, price } = Astro.params;
 
 // Data processing (consider moving to a separate function for clarity)
@@ -24,9 +25,13 @@ async function createAndProcessAppointment(data: FormData) {
   try {
     const price = data.get("price") as string;
     const services = data.get("services") as string;
-    const date = new Date(data.get("date") as string);
+    const date = data.get("date") as string;
     const time = data.get("time") as string;
-    const dateTime = new Date(date.setHours(parseInt(time.split(":")[0]), parseInt(time.split(":")[1])));
+    const selectedDate = parse(date, "yyyy-MM-dd", new Date());
+    const selectedTime = time;
+
+    const dateTime = new Date(selectedDate.setHours(parseInt(selectedTime.split(":")[0]), parseInt(selectedTime.split(":")[1])));
+    console.log(dateTime);
     const barber = data.get("barber") as string;
 
     const appointment: Appointments = {
@@ -147,6 +152,8 @@ if (Astro.request.method === "POST") {
                   id="date"
                   name="date"
                   required
+                  placeholder="Selecciona la fecha"
+                  disabled
                   type="text"
                   data-input
                   class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -174,6 +181,7 @@ if (Astro.request.method === "POST") {
               <input
                 id="time"
                 name="time"
+                disabled
                 required
                 placeholder="Selecciona la hora"
                 class="h-10 block w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-gray-700 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -211,102 +219,108 @@ if (Astro.request.method === "POST") {
 </PlainLayout>
 
 <script>
-  import { isWeekend, parse } from "date-fns";
+  import { format, isAfter, isSameDay, parse } from "date-fns";
   import flatpickr from "flatpickr";
-  import { createAppointment, getAppointmentByBarber, getAppointments } from "../../../../../../services/AppointmentsServices";
+  import {
+    getAppointmentsByClient,
+    getAppointmentByBarber,
+  } from "../../../../../../services/AppointmentsServices";
   import { $ } from "../../../../../../utils/BaseSettings";
+  import type { AppointmentsByClient } from "../../../../../../types/services/Appointments";
+
   document.addEventListener("DOMContentLoaded", async function () {
-  // Obtener el elemento del campo de fecha
-  const dateInput = $("#date") as HTMLInputElement;
-  const timeInput = $("#time") as HTMLInputElement;
-  const errorDate = $("#errorDate") as HTMLHeadingElement;
-  const barberSelect = $("#barber") as HTMLSelectElement;
-  const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
-  const barberParagraphSelect = $("#barber-select") as HTMLParagraphElement;
-  const getAppointmentsDate = await getAppointments();
-  const unavailableTimeSlots = [
-    "16:30", // Disable 4:30 PM
-    "17:15:00", // Disable 5:15 PM
-    "18:45:00", // Disable 6:45 PM
-  ];
-
-
-
-  dateInput.addEventListener("change", function () {
-    // Solo quiero la fecha, no la hora
-    datetimeSelect.textContent = dateInput.value;
-  });
-  barberSelect.addEventListener("change", async function () {
-    barberParagraphSelect.textContent =
-      barberSelect.options[barberSelect.selectedIndex].text;
-    dateInput.disabled = false;
-    const appointment = await getAppointmentByBarber(barberSelect.value);
+    const dateInput = $("#date") as HTMLInputElement;
+    const timeInput = $("#time") as HTMLInputElement;
+    const errorDate = $("#errorDate") as HTMLHeadingElement;
+    const barberSelect = $("#barber") as HTMLSelectElement;
+    const datetimeSelect = $("#datetime-select") as HTMLParagraphElement;
+    const timeSelect = $("#time-select") as HTMLParagraphElement;
+    const barberParagraphSelect = $("#barber-select") as HTMLParagraphElement;
+    const unavailableTimeSlots: string[] = [];
+    const appointmentsTimeOccupied: string[] = [];
     flatpickr(dateInput, {
-      enableTime: true,
-      dateFormat: "Y-m-dTH:i",
-      disable: appointment?.map((appointment) => {
-        // Parsear manualmente la cadena de fecha
-        const parts = appointment.dateTime.split(" ");
-        const dateParts = parts[0].split("/");
-        const timeParts = parts[1].split(":");
-        const year = parseInt(dateParts[2], 10);
-        const month = parseInt(dateParts[1], 10) - 1; // Los meses en JavaScript comienzan desde 0
-        const day = parseInt(dateParts[0], 10);
-        const hours = parseInt(timeParts[0], 10);
-        const minutes = parseInt(timeParts[1], 10);
-        // Crear el objeto de fecha
-        const date = new Date(year, month, day, hours, minutes);
-        return date;
-      }),
+      enableTime: false,
+      dateFormat: "Y-m-d",
       minDate: "today",
+      wrap: false,
+      disable: [
+        function (date) {
+          return date.getDay() === 0 || date.getDay() === 6;
+        },
+      ],
     });
-  });
+    flatpickr(timeInput, {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i K",
+        time_24hr: false,
+        disable: [
+          function (date) {
+            const time = format(date, "HH:mm");
+            if (appointmentsTimeOccupied.includes(time)) {
+              unavailableTimeSlots.push(time);
+              return true;
+            }
+            return false;
+          },
+        ],
+        onClose: function (selectedDates, dateStr, instance) {
+          if (unavailableTimeSlots.includes(dateStr)) {
+            errorDate.textContent = "La hora seleccionada no está disponible";
+            instance.clear();
+            setTimeout(() => {
+              errorDate.textContent = "";
+            }, 2000);
+          } else {
+            errorDate.textContent = "";
+          }
+        },
+      });
 
-  dateInput.addEventListener("change", function () {
-    datetimeSelect.textContent = dateInput.value;
-  });
+    dateInput.addEventListener("change", function () {
+      datetimeSelect.textContent = dateInput.value;
+    });
 
-  
-    
-  flatpickr(dateInput, {
-    enableTime: false,
-    dateFormat: "Y-m-d",
-    minDate: "today",
-    wrap: false,
-    disable: [
-      function (date) {
-        return date.getDay() === 0 || date.getDay() === 6;
-      },
-    ],
-  });
+    barberSelect.addEventListener("change", async function () {
+      barberParagraphSelect.textContent =
+        barberSelect.options[barberSelect.selectedIndex].text;
+      dateInput.disabled = false;
+    });
 
-  flatpickr(timeInput, {
-    enableTime: true,
-    noCalendar: true,
-    dateFormat: "H:i",
-    time_24hr: false,
-    // minTime: "16:00",
-    // maxTime: "22:30",
-    disable: [
-      function (time) {
-        const timeString = time.toLocaleTimeString(); // Convert time to string
-        return unavailableTimeSlots.includes(timeString); // Check if time is in disabled list
-      },
-    ],
-    // Cuando se cierre verifique si la hora seleccionada está deshabilitada
-    onClose: function (selectedDates, dateStr, instance) {
-      console.log(dateStr);
-      if (unavailableTimeSlots.includes(dateStr)) {
-        errorDate.textContent = "La hora seleccionada no está disponible";
-        console.log("La hora seleccionada no está disponible");
-        instance.clear();
-        setTimeout(() => {
-          errorDate.textContent = "";
-        }, 2000);
-      } else {
-        errorDate.textContent = "";
-      }
-    },
-  });
+    dateInput.addEventListener("change", async function () {
+      datetimeSelect.textContent = dateInput.value;
+      timeInput.disabled = false;
+      const selectedDate = parse(dateInput.value, "yyyy-MM-dd", new Date());
+
+      const appointments: AppointmentsByClient[] = await getAppointmentByBarber(
+        barberSelect.value
+      ) as AppointmentsByClient[];
+
+      appointmentsTimeOccupied.push(
+        ...appointments
+          .map((appointment) => {
+            const appointmentDate = parse(
+              new Date(appointment.dateTime as string).toISOString(),
+              "dd/MM/yyyy HH:mm",
+              new Date()
+            );
+            if (
+              isSameDay(appointmentDate, selectedDate) &&
+              isAfter(appointmentDate, new Date())
+            ) {
+              return format(appointmentDate, "HH:mm");
+            }
+            return null;
+          })
+          .filter((time): time is string => time !== null)
+      );
+
+      
+    });
+
+    timeInput.addEventListener("change", function () {
+      const time = timeInput.value;
+      timeSelect.textContent = time;
+    });
   });
 </script>
