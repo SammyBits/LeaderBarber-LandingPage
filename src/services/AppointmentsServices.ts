@@ -1,8 +1,8 @@
-import { BASEAPI_URL } from "../utils/BaseSettings";
+import { BASEAPI_URL_PRO } from "../utils/BaseSettings";
 import { type Appointments, type AppointmentsByClient } from "../types/services/Appointments";
 export const getAppointments = async (): Promise<Appointments[] | undefined> => {
   try {
-    const response = await fetch(`${BASEAPI_URL}/v1/appointments`);
+    const response = await fetch(`${BASEAPI_URL_PRO}/v1/appointments`);
     const { message, result } = await response.json() as { message: string, result: Appointments[] };
     if (response.ok) {
       return result;
@@ -17,7 +17,7 @@ export const getAppointmentByBarber = async (
 ): Promise<AppointmentsByClient[] | null> => {
   try {
     const response = await fetch(
-      `${BASEAPI_URL}/v1/appointments/barber/${barberUUID}`,
+      `${BASEAPI_URL_PRO}/v1/appointments/barber/${barberUUID}`,
     );
     const { message, result } = (await response.json()) as {
       message: string;
@@ -37,7 +37,7 @@ export const getAppointmentsByClient = async (
 ): Promise<AppointmentsByClient[] | null> => {
   try {
     const response = await fetch(
-      `${BASEAPI_URL}/v1/appointments/client/${clientEmail}`,
+      `${BASEAPI_URL_PRO}/v1/appointments/client/${clientEmail}`,
     );
     const { message, result } = await response.json();
     if (response.ok) {
@@ -53,7 +53,7 @@ export const createAppointment = async (
   appointment: Appointments,
 ): Promise<Appointments | null> => {
   try {
-    const response = await fetch(`${BASEAPI_URL}/v1/appointments`, {
+    const response = await fetch(`${BASEAPI_URL_PRO}/v1/appointments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
