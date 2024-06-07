@@ -14,7 +14,10 @@ export default defineConfig({
     defaultLocale: "en-US"
   },
   integrations: [tailwind(), auth(), react()],
-  adapter: node({
-    mode: "standalone"
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true,
+    },
+    maxDuration: 8,
   }),
 });
