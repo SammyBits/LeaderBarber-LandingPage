@@ -14,14 +14,14 @@ export const getAppointments = async (): Promise<Appointments[] | undefined> => 
 
 export const getAppointmentByBarber = async (
   barberUUID: string,
-): Promise<Appointments[] | null> => {
+): Promise<AppointmentsByClient[] | null> => {
   try {
     const response = await fetch(
       `${BASEAPI_URL}/v1/appointments/barber/${barberUUID}`,
     );
     const { message, result } = (await response.json()) as {
       message: string;
-      result: Appointments[];
+      result: AppointmentsByClient[];
     };
     if (response.ok) {
       return result;
